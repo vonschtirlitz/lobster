@@ -83,11 +83,12 @@ function reformSegment(
   match?: (a: Figure[], b: Figure[]) => Map<string, string>,
 ): Segment {
   const a = layout(c, start, d);
-  const b = new Map(layout(c, end, d).map((f) => [f.slot, f.pos]));
-  const pairs = match ? match(a, [...b.keys()].map((slot) => ({ slot }) as Figure)) : null;
+  const bFigs = layout(c, end, d);
+  const b = new Map(bFigs.map((f) => [f.slot, f.pos]));
+  const pairs = match ? match(a, bFigs) : null;
   const furthest = Math.max(0, ...a.map((f) => dist(f.pos, b.get(pairs?.get(f.slot) ?? f.slot) ?? f.pos)));
   const duration = Math.max(d.defaults.beatSeconds, furthest / speed(d, 'ordinary'));
-  return slotLerpSegment(order, t0, duration, start, end, c, d, match);
+  return slotLerpSegment(order, t0, duration, start, end, c, d, pairs ? () => pairs : undefined, 'short', { a, b: bFigs });
 }
 
 export function buildSegment(order: Order, t0: number, start: FormationState, c: Company, d: DrillSystem): Segment {

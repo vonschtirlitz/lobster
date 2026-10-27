@@ -77,11 +77,13 @@ export interface Segment {
   start: FormationState;
   end: FormationState;
   sample(t: number): Figure[];
+  stateAt?(t: number): FormationState; // rigid segments only; used to trace the path
   error?: string;
 }
 
 export interface Timeline {
   duration: number;
+  starts: Map<string, FormationState>;
   segments: Map<string, Segment[]>;
   sample(t: number): Map<string, Figure[]>;
   path(companyId: string): Vec2[];
