@@ -1,7 +1,7 @@
 import type { DrillSystem } from '../drill/types';
-import type { Company, FormationState, MenFacing, Order, Segment } from '../model/types';
-import { FACING_OFFSET, blockWidth, flankPos } from '../model/layout';
-import { describe, rotateState, translateState } from '../model/formation';
+import type { Company, Figure, FormationState, MenFacing, Order, OrderSpacing, Segment } from '../model/types';
+import { FACING_OFFSET, blockWidth, flankPos, layout } from '../model/layout';
+import { describe, resizeAboutDress, rotateState, translateState } from '../model/formation';
 import { angleDiff, dist, fwd, scale } from '../model/vec';
 import { errorSegment, rigidSegment, slotLerpSegment } from './segment';
 
@@ -23,9 +23,78 @@ function facingAfter(current: MenFacing, direction: string): MenFacing {
   return names.find((n) => Math.abs(angleDiff(FACING_OFFSET[n], target)) < 1e-6)!;
 }
 
+/** Checks an order's parameters against its command definition and the drill's rules. */
+export function validateParams(order: Order, d: DrillSystem): string | null {
+  const def = d.commands.find((c) => c.kind === order.kind);
+  if (!def) return 'Unknown command';
+  for (const pd of def.params) {
+    const val = param(order, pd.key, d);
+    if (pd.type === 'number') {
+      const x = Number(val);
+      if (!Number.isFinite(x)) return `${pd.label} must be a number`;
+      if (pd.min !== undefined && x < pd.min) return `${pd.label} must be at least ${pd.min}`;
+      if (pd.max !== undefined && x > pd.max) return `${pd.label} must be at most ${pd.max}`;
+    } else if (pd.choices && !pd.choices.includes(String(val))) {
+      return `${pd.label}: "${String(val)}" is not one of ${pd.choices.join(', ')}`;
+    }
+  }
+  if (order.kind === 'spacing' && !d.defaults.allowedOrders.includes(param(order, 'order', d) as OrderSpacing))
+    return `Order: ${String(param(order, 'order', d))} is not used by ${d.name}`;
+  if (order.kind === 'depth' && !d.defaults.allowedRanks.includes(Number(param(order, 'ranks', d))))
+    return `Ranks: ${String(param(order, 'ranks', d))} deep is not used by ${d.name}`;
+  return null;
+}
+
+const SLOT = /^p(\d+):f(\d+):r(\d+)$/;
+
+/** Pairs men by their sequence within each platoon: file by file from the right, front to rear. */
+export function depthMatch(startFigs: Figure[], endFigs: Figure[]): Map<string, string> {
+  const ordered = (figs: Figure[]) => {
+    const groups = new Map<string, number[][]>();
+    for (const f of figs) {
+      const m = SLOT.exec(f.slot);
+      if (!m) continue;
+      const list = groups.get(m[1]) ?? [];
+      list.push([Number(m[2]), Number(m[3])]);
+      groups.set(m[1], list);
+    }
+    for (const list of groups.values()) list.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    return groups;
+  };
+  const a = ordered(startFigs);
+  const b = ordered(endFigs);
+  const out = new Map<string, string>();
+  for (const [pi, list] of a) {
+    const target = b.get(pi) ?? [];
+    list.forEach(([f, r], i) => {
+      if (target[i]) out.set(`p${pi}:f${f}:r${r}`, `p${pi}:f${target[i][0]}:r${target[i][1]}`);
+    });
+  }
+  return out;
+}
+
+function reformSegment(
+  order: Order,
+  t0: number,
+  start: FormationState,
+  end: FormationState,
+  c: Company,
+  d: DrillSystem,
+  match?: (a: Figure[], b: Figure[]) => Map<string, string>,
+): Segment {
+  const a = layout(c, start, d);
+  const b = new Map(layout(c, end, d).map((f) => [f.slot, f.pos]));
+  const pairs = match ? match(a, [...b.keys()].map((slot) => ({ slot }) as Figure)) : null;
+  const furthest = Math.max(0, ...a.map((f) => dist(f.pos, b.get(pairs?.get(f.slot) ?? f.slot) ?? f.pos)));
+  const duration = Math.max(d.defaults.beatSeconds, furthest / speed(d, 'ordinary'));
+  return slotLerpSegment(order, t0, duration, start, end, c, d, match);
+}
+
 export function buildSegment(order: Order, t0: number, start: FormationState, c: Company, d: DrillSystem): Segment {
   const p = (k: string) => param(order, k, d);
   const beat = d.defaults.beatSeconds;
+  const invalid = validateParams(order, d);
+  if (invalid) return errorSegment(order, t0, start, c, d, invalid);
 
   switch (order.kind) {
     case 'face': {
@@ -74,6 +143,15 @@ export function buildSegment(order: Order, t0: number, start: FormationState, c:
       }
       const duration = (width * Math.abs(angle)) / speed(d, 'ordinary');
       return rigidSegment(order, t0, duration, start, stateAt(1), stateAt, c, d);
+    }
+    case 'spacing':
+    case 'depth': {
+      if (start.menFacing !== 'front') return errorSegment(order, t0, start, c, d, 'Front the men before re-forming');
+      const end =
+        order.kind === 'spacing'
+          ? resizeAboutDress(c, start, p('order') as OrderSpacing, null, d)
+          : resizeAboutDress(c, start, null, Number(p('ranks')), d);
+      return reformSegment(order, t0, start, end, c, d, order.kind === 'depth' ? depthMatch : undefined);
     }
     case 'wait':
       return rigidSegment(order, t0, Number(p('seconds')), start, start, () => start, c, d);
