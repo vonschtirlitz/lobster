@@ -5,6 +5,9 @@ import { createReplay } from './state/replay';
 import { Camera } from './ui/canvas/camera';
 import { drawScene, readPalette, sceneBounds, type Overlay } from './ui/canvas/render';
 import { attachInteractions } from './ui/canvas/interact';
+import { mountToolbar } from './ui/panels/toolbar';
+import { mountSetup } from './ui/panels/setup';
+import { h } from './ui/dom';
 
 const store = createStore(loadAutosave() ?? defaultScene());
 autosave(store);
@@ -62,3 +65,22 @@ function frame() {
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
+
+function fit() {
+  cam.fit(sceneBounds(store));
+  invalidate();
+}
+
+function showError(message: string) {
+  field.querySelector('.toast')?.remove();
+  const toast = h(
+    'div',
+    { class: 'toast', role: 'alert' },
+    h('span', {}, message),
+    h('button', { type: 'button', on: { click: () => toast.remove() } }, 'Dismiss'),
+  );
+  field.append(toast);
+}
+
+mountToolbar(document.getElementById('toolbar')!, store, fit, showError);
+mountSetup(document.getElementById('setup')!, store);
