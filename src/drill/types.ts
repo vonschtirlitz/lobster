@@ -14,8 +14,9 @@ export interface ParamDef {
 
 export interface CommandDef {
   kind: CommandKind;
-  words: string;
+  words: string; // generic label for menus
   params: ParamDef[];
+  say?(params: Record<string, unknown>): string; // the word of command as called out
 }
 
 export interface DrillSystem {
