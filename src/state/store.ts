@@ -31,7 +31,7 @@ export type Action =
   | { type: 'updateCompany'; id: string; patch: Partial<Omit<Company, 'id'>> }
   | { type: 'setPlatoons'; id: string; platoons: Platoon[] }
   | { type: 'setFormation'; id: string; which: 'current' | 'ghost'; state: FormationState }
-  | { type: 'setFormations'; changes: { id: string; which: 'current' | 'ghost'; state: FormationState }[] }
+  | { type: 'setFormations'; changes: { id: string; which: 'current' | 'ghost'; state: FormationState }[]; lineShapes?: string[] }
   | { type: 'setGhostShape'; id: string; shape: GhostShape }
   | { type: 'setOrders'; id: string; orders: Order[] }
   | { type: 'addOrder'; id: string; order: Order; index?: number }
@@ -151,8 +151,13 @@ export function reduce(s: Scene, a: Action): Scene {
     }
     case 'setFormation':
       return { ...s, [a.which]: { ...s[a.which], [a.id]: a.state } };
-    case 'setFormations':
-      return a.changes.reduce<Scene>((acc, ch) => ({ ...acc, [ch.which]: { ...acc[ch.which], [ch.id]: ch.state } }), s);
+    case 'setFormations': {
+      const next = a.changes.reduce<Scene>((acc, ch) => ({ ...acc, [ch.which]: { ...acc[ch.which], [ch.id]: ch.state } }), s);
+      if (!a.lineShapes?.length) return next;
+      const shapes = { ...next.ghostShape };
+      for (const id of a.lineShapes) shapes[id] = 'line';
+      return { ...next, ghostShape: shapes };
+    }
     case 'setGhostShape': {
       const c = s.companies.find((x) => x.id === a.id);
       if (!c) return s;

@@ -4,6 +4,7 @@ import { autosave, loadAutosave } from './state/persist';
 import { createReplay } from './state/replay';
 import { Camera } from './ui/canvas/camera';
 import { drawScene, readPalette, sceneBounds, type Overlay } from './ui/canvas/render';
+import { attachInteractions } from './ui/canvas/interact';
 
 const store = createStore(loadAutosave() ?? defaultScene());
 autosave(store);
@@ -39,6 +40,7 @@ resize();
 cam.fit(sceneBounds(store));
 
 store.subscribe(invalidate);
+attachInteractions(canvas, cam, store, overlay, invalidate);
 replay.subscribe(invalidate);
 
 canvas.addEventListener(
