@@ -1,8 +1,8 @@
 import type { DrillSystem } from '../drill/types';
 import type { Company, FormationState, MenFacing, Order, Segment } from '../model/types';
-import { FACING_OFFSET } from '../model/layout';
-import { translateState } from '../model/formation';
-import { angleDiff, fwd, scale } from '../model/vec';
+import { FACING_OFFSET, blockWidth, flankPos } from '../model/layout';
+import { describe, rotateState, translateState } from '../model/formation';
+import { angleDiff, dist, fwd, scale } from '../model/vec';
 import { errorSegment, rigidSegment, slotLerpSegment } from './segment';
 
 /** Paces per second for a named step. */
@@ -47,6 +47,33 @@ export function buildSegment(order: Order, t0: number, start: FormationState, c:
     case 'dress': {
       const end = { ...start, dressBy: p('point') as FormationState['dressBy'] };
       return rigidSegment(order, t0, beat, start, end, (u) => (u >= 1 ? end : start), c, d);
+    }
+    case 'wheel': {
+      if (start.menFacing !== 'front') return errorSegment(order, t0, start, c, d, 'Cannot wheel while faced to a flank');
+      const byCompany = p('by') !== 'platoons';
+      if (byCompany && describe(start, d) !== 'line')
+        return errorSegment(order, t0, start, c, d, 'Company must be in line to wheel as one');
+      const side = p('direction') === 'left' ? 'left' : 'right';
+      const angle = ((side === 'right' ? -1 : 1) * Number(p('degrees')) * Math.PI) / 180;
+      const fi = d.defaults.fileInterval[start.order];
+      const occupied = start.blocks.filter((b) => b.files > 0);
+      let stateAt: (u: number) => FormationState;
+      let width: number;
+      if (byCompany) {
+        const unit = side === 'right' ? occupied[0] : occupied[occupied.length - 1];
+        const pivot = flankPos(unit, side, fi);
+        width = dist(flankPos(occupied[0], 'right', fi), flankPos(occupied[occupied.length - 1], 'left', fi));
+        stateAt = (u) => rotateState(start, pivot, angle * u);
+      } else {
+        const pivots = start.blocks.map((b) => flankPos(b, side, fi));
+        width = Math.max(0, ...start.blocks.map((b) => blockWidth(b, fi)));
+        stateAt = (u) => ({
+          ...start,
+          blocks: start.blocks.map((b, i) => rotateState({ ...start, blocks: [b] }, pivots[i], angle * u).blocks[0]),
+        });
+      }
+      const duration = (width * Math.abs(angle)) / speed(d, 'ordinary');
+      return rigidSegment(order, t0, duration, start, stateAt(1), stateAt, c, d);
     }
     case 'wait':
       return rigidSegment(order, t0, Number(p('seconds')), start, start, () => start, c, d);
