@@ -1,0 +1,32 @@
+name: Label form issues
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  triage:
+    # Zapier opens form issues with the owner's account; nobody else's issues are touched.
+    if: github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+
+      - name: Label and tidy the issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { triageFormIssue } = await import(`${process.env.GITHUB_WORKSPACE}/.github/scripts/form-issue.mjs`);
+            const issue = context.payload.issue;
+            const result = triageFormIssue({ title: issue.title, body: issue.body ?? '' });
+            if (!result) return;
+            const target = { ...context.repo, issue_number: issue.number };
+            await github.rest.issues.update({ ...target, body: result.body });
+            await github.rest.issues.addLabels({ ...target, labels: result.labels });
