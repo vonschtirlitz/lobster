@@ -1,4 +1,5 @@
 import { h } from '../dom';
+import { feedbackLink } from '../feedback';
 
 const STEPS: [string, string][] = [
   ['Pick a company.', 'Click it on the field or in the Companies panel. "+ Add company" puts a new one on the field.'],
@@ -44,6 +45,7 @@ export function mountHelp(host: HTMLElement): () => void {
     h('h3', {}, 'Controls'),
     h('table', { class: 'help-controls' }, h('tbody', {}, ...CONTROLS.map(([what, how]) => h('tr', {}, h('th', { scope: 'row' }, what), h('td', {}, how))))),
     h('p', { class: 'note' }, 'The 1764 words of command and distances are drafts until they are checked against the Manual.'),
+    h('p', {}, 'Found a bug, want something added, or have a source for the drill? ', feedbackLink('Use the feedback form'), '.'),
     h('div', { class: 'help-actions' }, close),
   );
   close.addEventListener('click', () => dialog.close());

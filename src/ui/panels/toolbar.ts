@@ -4,6 +4,7 @@ import { getDrill } from '../../drill/registry';
 import { resizeAboutDress } from '../../model/formation';
 import { exportScene, importScene } from '../../state/persist';
 import { h, segmented } from '../dom';
+import { feedbackLink } from '../feedback';
 
 const ORDER_TEXT: Record<OrderSpacing, string> = { close: 'Close', open: 'Open', extended: 'Extended' };
 
@@ -128,6 +129,7 @@ export function mountToolbar(
       h('button', { type: 'button', on: { click: save } }, 'Save'),
       h('button', { type: 'button', on: { click: () => fileInput.click() } }, 'Load'),
       h('button', { type: 'button', class: 'help-button', on: { click: openHelp } }, "I don't know what I'm doing"),
+      feedbackLink('Bugs and ideas', 'button-link'),
       fileInput,
     );
   };
