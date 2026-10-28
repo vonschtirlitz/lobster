@@ -11,15 +11,15 @@ const DRESS = ['right', 'left', 'centre'];
 const FACINGS = ['front', 'right', 'left', 'about'];
 
 function companyProblem(c: unknown): string | null {
-  if (!isObj(c) || typeof c.id !== 'string' || typeof c.name !== 'string') return 'A company in the scene is malformed.';
+  if (!isObj(c) || typeof c.id !== 'string' || typeof c.name !== 'string') return 'A company in this file is damaged.';
   const name = c.name;
-  if (!num(c.rankAndFile) || typeof c.colour !== 'string') return `${name} is malformed.`;
+  if (!num(c.rankAndFile) || typeof c.colour !== 'string') return `${name} is damaged in this file.`;
   if (!Array.isArray(c.platoons) || !c.platoons.every((p) => isObj(p) && typeof p.id === 'string' && typeof p.name === 'string' && num(p.men) && p.men >= 0))
-    return `${name} has malformed platoons.`;
+    return `${name}'s platoons are damaged in this file.`;
   const o = c.officers;
-  if (!isObj(o) || !['captain', 'lieutenant', 'ensign'].every((k) => typeof o[k] === 'boolean')) return `${name} has malformed officers.`;
+  if (!isObj(o) || !['captain', 'lieutenant', 'ensign'].every((k) => typeof o[k] === 'boolean')) return `${name}'s officers are damaged in this file.`;
   const n = c.ncos;
-  if (!isObj(n) || !num(n.sergeants) || !num(n.corporals) || typeof n.drummer !== 'boolean') return `${name} has malformed NCOs.`;
+  if (!isObj(n) || !num(n.sergeants) || !num(n.corporals) || typeof n.drummer !== 'boolean') return `${name}'s NCOs are damaged in this file.`;
   return null;
 }
 
@@ -33,30 +33,37 @@ function formationProblem(s: unknown): string | null {
       isObj(b) && typeof b.platoonId === 'string' && isObj(b.anchor) && num(b.anchor.x) && num(b.anchor.y) &&
       num(b.front) && num(b.files) && b.files >= 0 && num(b.ranks) && b.ranks >= 1,
   );
-  return ok ? null : 'has a malformed block';
+  return ok ? null : 'is damaged';
 }
 
+const NEXT_STEP = ' Choose a file made with the Save button.';
+
 export function importScene(json: string): { ok: true; scene: Scene } | { ok: false; error: string } {
+  const r = parseScene(json);
+  return r.ok ? r : { ok: false, error: r.error + NEXT_STEP };
+}
+
+function parseScene(json: string): { ok: true; scene: Scene } | { ok: false; error: string } {
   let raw: unknown;
   try {
     raw = JSON.parse(json);
   } catch {
-    return { ok: false, error: 'This file is not valid JSON.' };
+    return { ok: false, error: 'This file is not a saved LOBSTER scene.' };
   }
-  if (!isObj(raw)) return { ok: false, error: 'This file is not a LOBSTER scene.' };
-  if (raw.version !== 1) return { ok: false, error: `Unsupported scene version: ${String(raw.version)}.` };
+  if (!isObj(raw)) return { ok: false, error: 'This file is not a saved LOBSTER scene.' };
+  if (raw.version !== 1) return { ok: false, error: `This scene was saved by a version of LOBSTER this one can't read (version ${String(raw.version)}).` };
   for (const k of ['drillId', 'companies', 'current', 'ghost', 'orders', 'settings']) {
-    if (!(k in raw)) return { ok: false, error: `The scene is missing "${k}".` };
+    if (!(k in raw)) return { ok: false, error: `This file is missing part of the scene (${k}).` };
   }
-  if (!Array.isArray(raw.companies)) return { ok: false, error: '"companies" must be a list.' };
-  if (typeof raw.drillId !== 'string') return { ok: false, error: '"drillId" must be text.' };
+  if (!Array.isArray(raw.companies)) return { ok: false, error: 'The company list in this file is damaged.' };
+  if (typeof raw.drillId !== 'string') return { ok: false, error: 'The drill system in this file is damaged.' };
   const settings = raw.settings as Record<string, unknown>;
   if (!isObj(settings) || !num(settings.tolerancePaces) || !num(settings.toleranceDeg))
-    return { ok: false, error: 'The scene\'s tolerance settings are malformed.' };
+    return { ok: false, error: 'The tolerance settings in this file are damaged.' };
   const current = raw.current as Record<string, unknown>;
   const ghost = raw.ghost as Record<string, unknown>;
   const orders = raw.orders as Record<string, unknown>;
-  if (!isObj(current) || !isObj(ghost) || !isObj(orders)) return { ok: false, error: 'The scene\'s formations or orders are malformed.' };
+  if (!isObj(current) || !isObj(ghost) || !isObj(orders)) return { ok: false, error: 'The formations or orders in this file are damaged.' };
   const shapes = isObj(raw.ghostShape) ? raw.ghostShape : {};
   for (const c of raw.companies as unknown[]) {
     const problem = companyProblem(c);
@@ -69,9 +76,9 @@ export function importScene(json: string): { ok: true; scene: Scene } | { ok: fa
       if (fp) return { ok: false, error: `${name}: the ${label} formation ${fp}.` };
     }
     const list = orders[id];
-    if (!Array.isArray(list)) return { ok: false, error: `${name} has no orders list.` };
+    if (!Array.isArray(list)) return { ok: false, error: `${name}'s orders are missing from this file.` };
     if (!list.every((o) => isObj(o) && typeof o.id === 'string' && typeof o.kind === 'string' && isObj(o.params)))
-      return { ok: false, error: `${name} has a malformed order.` };
+      return { ok: false, error: `One of ${name}'s orders is damaged in this file.` };
     if (shapes[id] !== 'line' && shapes[id] !== 'column') shapes[id] = 'line';
   }
   return { ok: true, scene: { ...(raw as unknown as Scene), ghostShape: shapes as Scene['ghostShape'] } };

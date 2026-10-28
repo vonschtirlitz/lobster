@@ -150,7 +150,7 @@ export function frontageFromDrag(
   const ranks = snapRanks(raw, d.defaults.allowedRanks);
   const state = asLine(c, lerp(a, b, 0.5), front, ranks, current.order, current.dressBy, d);
   const files = state.blocks.reduce((n, bl) => n + bl.files, 0);
-  const note = ranks !== raw ? `${raw} ranks is not allowed; formed ${ranks} ranks` : undefined;
+  const note = ranks !== raw ? `${raw} deep isn't allowed, so this forms ${ranks} deep` : undefined;
   return { state, files, ranks, note };
 }
 

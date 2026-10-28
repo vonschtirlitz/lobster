@@ -99,3 +99,16 @@ describe('replay', () => {
     expect(replay.t()).toBeCloseTo(5);
   });
 });
+
+describe('import error wording', () => {
+  it('tells the user what to do next in plain words', () => {
+    for (const bad of ['not json', '{}', JSON.stringify({ ...defaultScene(), version: 0 })]) {
+      const r = importScene(bad);
+      expect(r.ok).toBe(false);
+      if (!r.ok) {
+        expect(r.error).toMatch(/Save button/);
+        expect(r.error).not.toMatch(/malformed|JSON|must be a list/);
+      }
+    }
+  });
+});

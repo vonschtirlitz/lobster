@@ -1,4 +1,4 @@
-<p align="center"><img src="public/favicon.svg" width="96" alt="LOBSTER logo: a red lobster"></p>
+<p align="center"><img src="public/favicon.svg" width="96" alt="LOBSTER logo: a red lobster in a cocked hat"></p>
 
 <h1 align="center">LOBSTER</h1>
 
@@ -8,40 +8,40 @@
 
 ---
 
-LOBSTER is a browser tool for planning and rehearsing 18th-century line-infantry drill. You place a company on the field, drag out where you want it to end up, and give the words of command. It then replays what the company actually does, wheel by wheel, and tells you how close you got.
+LOBSTER is a browser tool for planning and rehearsing 18th-century line-infantry drill. You place a company on the field, drag out where you want it to end up, and give the words of command. It then replays what the company does, wheel by wheel, and tells you how close you got.
 
-It's built for reenactors, wargamers and drill researchers who already know their facings from their wheelings and want to practise *what to call out*, or check what a given call would really do.
+It's built for reenactors, wargamers and drill researchers who already know their facings from their wheelings and want to practise what to call out, or check what a given call would do.
+
+Try it at https://lobster.18thcenturymaterialculture.org.
 
 ![LOBSTER showing two companies: one wheeling right, marching and wheeling left along a curved ground arrow; another wheeling into a column of platoons](docs/screenshot.png)
 
-## Features
+## What it does
 
-- **Field:** a top-down field where every soldier is a dot with a facing tick. Officers, sergeants, corporals and the drummer each have their own mark, and a chevron marks the directing file.
-- **Manipulation:** Total War style controls. Drag to move, use the handle to rotate, and right-drag a frontage line to spread or deepen the ranks. Drag a flank to widen or narrow the line about its dressing point.
-- **Ghost targets:** each company has a see-through target. It can be set as a line or as an open column of platoons.
-- **Companies and platoons:** set rank and file, telling off into platoons, officers and NCOs, 2 or 3 deep, close / open / extended order, and dress by the right, centre or left.
-- **Words of command:** march, face, wheel by company or by platoons, take order, dress, form deep and mark time. Orders that can't be given in the company's current state are flagged with the reason.
-- **Drill-faithful replay:**
-  - wheels pivot on the flank man and follow true arcs, timed at the step's cadence;
-  - a march to a flank goes by files, and changes of order spread from the dressing point;
-  - a ground arrow traces the real path, with a numbered marker at each order;
-  - several companies run in parallel.
-- **"How close did you get":** the end of each company's orders is compared with its ghost on position, front, shape, files, ranks, order and dressing.
-- **Save and share:** scenes save and load as JSON and autosave in the browser. Undo and redo cover everything.
-- **Swappable drill systems:** every drill number and word of command lives in one module, so other manuals (Steuben, French 1791, …) can be added later.
+The field is drawn from above, one dot per soldier, each with a tick showing which way he faces. Officers, sergeants, corporals and the drummer have their own marks, and a chevron marks the directing file.
 
-## Quick start
+You shape a company the way you would in Total War: drag it to move it, turn it by its handle, and right-drag a line across the field to set a new frontage, which spreads or deepens the ranks to fit. Each company has a see-through ghost for where it should finish, as a line or an open column of platoons.
 
-Requires Node.js 18+.
+Each company has its own rank and file, telling off into platoons, officers and NCOs, depth (2 or 3 deep), order (close, open or extended) and dressing point (right, centre or left).
+
+The orders you can give so far are march, face, wheel by company or by platoons, take order, dress, form deep and mark time. An order that can't be given from where the company stands is marked with the reason.
+
+The replay follows the drill rather than sliding men into place. Wheels pivot on the flank man and follow the arc at the step's cadence, a march to a flank goes by files, and a change of order spreads from the dressing point. An arrow on the ground traces the path, numbered where each order is given, and several companies can drill at once. At the end, each company is compared with its ghost on position, front, shape, files, ranks, order and dressing.
+
+Scenes save and load as JSON and autosave in the browser, and undo covers every change. All drill numbers and words of command live in one module, so other manuals (Steuben, the French 1791 Règlement) can be added later.
+
+## Running it locally
+
+Requires Node.js 20.19 or newer.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually http://localhost:5173).
+Open the URL Vite prints, usually http://localhost:5173.
 
-> **WSL note:** on a Windows drive mounted in WSL (`/mnt/c`, `/mnt/e`, …), Vite can't see file changes. Restart it with `npx vite --force` after editing.
+On a Windows drive mounted in WSL (`/mnt/c`, `/mnt/e`), Vite can't see file changes, so restart it with `npx vite --force` after editing.
 
 | Command | What it does |
 |---|---|
@@ -53,56 +53,45 @@ Open the URL Vite prints (usually http://localhost:5173).
 
 ## How to use it
 
-New here? The **I don't know what I'm doing** button in the toolbar opens a short walkthrough.
+New here? The "I don't know what I'm doing" button in the toolbar opens a short walkthrough.
 
 | To… | Do this |
 |---|---|
-| Pan / zoom | Drag empty ground / mouse wheel. **Fit** frames every company |
-| Choose what you're editing | **Edit: Start / Ghost** in the toolbar |
+| Pan or zoom | Drag empty ground, or use the mouse wheel. Fit frames every company |
+| Choose what you're editing | Edit: Start or Ghost, in the toolbar |
 | Move a company | Drag it |
 | Rotate | Drag the round handle in front of it. Hold Shift to snap to 45° |
-| Set frontage | Right-drag (or the **Frontage** tool) from one flank to the other. The men face to the left of the drag direction |
+| Set frontage | Right-drag from one flank to the other, or use the Frontage tool. The men face to the left of the drag direction |
 | Widen or narrow | Drag a flank square |
 | Select several | Shift-click |
-| Give orders | **+ March**, **+ Wheel**, … in the Orders panel. Edit parameters inline and drag rows to reorder |
-| Replay | Play / pause (Space), step between orders, scrub, speed up to 4×. Click an order's words to jump to it |
-| Chain exercises | **Make this the start** turns the end of the replay into the new starting position |
-| Undo / redo | Ctrl+Z / Ctrl+Shift+Z |
-| Edit from the keyboard | Tab to the field, then use the arrow keys to move the selected company, `[` and `]` to rotate it, and `+` and `-` to change its depth. Hold Shift for bigger steps, and press Escape to clear the selection |
+| Give orders | Use + March, + Wheel and the other buttons in the Orders panel. Edit parameters inline, and reorder with ↑ ↓ or by dragging |
+| Replay | Play or pause with Space, step between orders, scrub, and speed up to 4×. Click an order's words to jump to it |
+| Chain exercises | Make this the start turns the end of the replay into the new starting position |
+| Undo or redo | Ctrl+Z, Ctrl+Shift+Z |
+| Edit from the keyboard | Tab to the field. Arrow keys move the selected company, `[` and `]` rotate it, `+` and `-` change its depth. Hold Shift for bigger steps; Escape clears the selection |
 
 LOBSTER is built for desktop browsers with a mouse or trackpad. There is no phone layout, by choice.
 
 ## Status and drill sources
 
-LOBSTER is early work. The British **1764 Manual** is the first drill system, and **its numbers are placeholders**:
-- file intervals and rank distances;
-- paces per minute;
-- where officers and NCOs are posted;
-- the exact words of command.
+LOBSTER is early work. The British 1764 Manual is the first drill system, and its numbers are placeholders: file intervals, rank distances, paces per minute, where officers and NCOs are posted, and the exact words of command. They're marked `SOURCE NEEDED` in [`src/drill/gb1764.ts`](src/drill/gb1764.ts), and the app says so in the Orders panel. Corrections with citations (the Manual, Cuthbertson, regimental standing orders) are welcome.
 
-They're marked `SOURCE NEEDED` in [`src/drill/gb1764.ts`](src/drill/gb1764.ts). Corrections with citations (the Manual, Cuthbertson, regimental standing orders) are very welcome.
-
-Planned:
-- working out the orders automatically from the ghost (the **Suggest orders** button);
-- typed, free-text words of command;
-- more commands (inclines, successive wheels of a column, firings);
-- battalion level;
-- other drill manuals.
+Next on the list:
+- working out the orders from the ghost (the Suggest orders button)
+- typing words of command as free text
+- more commands: inclines, successive wheels of a column, firings
+- battalion level
+- other drill manuals
 
 The design and implementation notes are in [`docs/superpowers/`](docs/superpowers/).
 
 ## Deploying
 
-The live site is **https://lobster.18thcenturymaterialculture.org**. Every push to `main` deploys it automatically ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)): tests, build, upload to S3, then a CloudFront cache refresh. Pull requests run tests and the build only ([`ci.yml`](.github/workflows/ci.yml)).
+Every push to `main` deploys the live site through [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): tests, build, upload to S3, then a CloudFront cache refresh. Pull requests run the tests and the build only ([`ci.yml`](.github/workflows/ci.yml)).
 
-**Hosting:** a private S3 bucket behind CloudFront, with an ACM certificate and Route53 records under the existing `18thcenturymaterialculture.org` zone. It's all defined in [`terraform/`](terraform/), which shares the material-culture Terraform state bucket under its own key.
+The site is a private S3 bucket behind CloudFront, with an ACM certificate and Route53 records under the existing `18thcenturymaterialculture.org` zone. It's all defined in [`terraform/`](terraform/), which keeps its state in the material-culture Terraform state bucket under its own key.
 
-**No secrets in GitHub.** The workflow signs in to AWS with GitHub OIDC, assuming a role that can only:
-- be used from `main` of this repo;
-- write to this site's bucket;
-- refresh this site's CloudFront distribution.
-
-The repo holds four non-secret Actions **variables**: `AWS_DEPLOY_ROLE_ARN`, `S3_BUCKET`, `CF_DISTRIBUTION_ID` and `SITE_URL`. Terraform state and `*.tfvars` are gitignored.
+GitHub holds no AWS secrets. The workflow signs in with GitHub OIDC and assumes a role that only `main` of this repo can use, and that can only write to this site's bucket and refresh its CloudFront distribution. The repo has four non-secret Actions variables: `AWS_DEPLOY_ROLE_ARN`, `S3_BUCKET`, `CF_DISTRIBUTION_ID` and `SITE_URL`. Terraform state and `*.tfvars` files are gitignored.
 
 To set up or change the infrastructure (needs AWS credentials locally):
 
@@ -113,9 +102,7 @@ make infra-apply
 make github-vars   # copies the Terraform outputs into the repo's Actions variables
 ```
 
-`make deploy` builds and uploads from your machine if you ever need to bypass CI.
-
-Because the build is a static site with relative asset paths, it also runs on any other static host (GitHub Pages, Cloudflare Pages, Netlify).
+`make deploy` builds and uploads from your machine if you ever need to bypass CI. The build is a static site with relative asset paths, so it also runs on any other static host.
 
 ## Project layout
 
@@ -134,4 +121,4 @@ docs/         screenshot, design and implementation plan
 
 ## Licence
 
-_To be decided._
+Not yet chosen.

@@ -136,6 +136,6 @@ describe('compareToGhost', () => {
   it('names a dressing mismatch', () => {
     const ghost = { ...line(c), dressBy: 'left' as const };
     const r = compareToGhost(c, line(c), ghost, d, tol);
-    expect(r.mismatches).toContain('dress: right ≠ left');
+    expect(r.mismatches).toContain('dress: right (ghost: left)');
   });
 });

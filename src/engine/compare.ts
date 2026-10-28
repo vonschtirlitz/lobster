@@ -28,7 +28,7 @@ export function compareToGhost(
     ['dress', end.dressBy, ghost.dressBy],
     ['facing', end.menFacing, ghost.menFacing],
   ];
-  const mismatches = checks.filter(([, a, b]) => a !== b).map(([k, a, b]) => `${k}: ${a} ≠ ${b}`);
+  const mismatches = checks.filter(([, a, b]) => a !== b).map(([k, a, b]) => `${k}: ${a} (ghost: ${b})`);
   const pass = distance <= tol.paces && frontDeg <= tol.degrees && mismatches.length === 0;
   return { distance, frontDeg, mismatches, pass };
 }

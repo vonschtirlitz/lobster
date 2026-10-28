@@ -48,7 +48,7 @@ describe('formation helpers', () => {
   it('a narrow drag snaps to the deepest allowed ranks with a note', () => {
     const r = frontageFromDrag(c, { x: 0, y: 0 }, { x: 1, y: 0 }, line(), d);
     expect(r.ranks).toBe(3);
-    expect(r.note).toMatch(/3 ranks/);
+    expect(r.note).toBe("12 deep isn't allowed, so this forms 3 deep");
   });
 
   it('frontage clamps', () => {
