@@ -1,5 +1,5 @@
 import { buildSegment, depthMatch } from '../../src/engine/primitives';
-import { asLine, guidePoint } from '../../src/model/formation';
+import { asLine, describe as describeState, guidePoint } from '../../src/model/formation';
 import { layout } from '../../src/model/layout';
 import { gb1764 as d } from '../../src/drill/gb1764';
 import { makeCompany } from '../helpers';
@@ -42,6 +42,18 @@ describe('spacing and depth', () => {
     const g1 = guidePoint(c, seg.end, d);
     expect(g1.x).toBeCloseTo(g0.x);
     expect(g1.y).toBeCloseTo(g0.y);
+  });
+
+  it('re-forming a column keeps it a column that wheels back into line', () => {
+    const c2 = makeCompany([21, 21]);
+    const start = asLine(c2, { x: 0, y: 0 }, up, 3, 'close', 'right', d);
+    const toColumn = buildSegment(o('wheel', { direction: 'right', degrees: 90, by: 'platoons' }), 0, start, c2, d).end;
+    for (const order of [o('spacing', { order: 'extended' }), o('depth', { ranks: '2' })]) {
+      const reformed = buildSegment(order, 0, toColumn, c2, d).end;
+      expect(describeState(reformed, d)).toBe('column');
+      const back = buildSegment(o('wheel', { direction: 'left', degrees: 90, by: 'platoons' }), 0, reformed, c2, d).end;
+      expect(describeState(back, d)).toBe('line');
+    }
   });
 
   it('rejects bad params', () => {

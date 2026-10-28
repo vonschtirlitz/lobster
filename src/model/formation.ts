@@ -62,17 +62,18 @@ export function asColumnOfPlatoons(
   return { blocks, menFacing: 'front', order, dressBy };
 }
 
-function isColumn(s: FormationState, fi: number): boolean {
+/** Which flank an open column is dressed on, or null if the blocks are not a column. */
+function columnAlignment(s: FormationState, fi: number): DressPoint | null {
   const bs = occupied(s);
-  if (bs.length < 2) return false;
+  if (bs.length < 2) return null;
   const f0 = bs[0].front;
-  if (bs.some((b) => Math.abs(angleDiff(b.front, f0)) > (0.5 * Math.PI) / 180)) return false;
+  if (bs.some((b) => Math.abs(angleDiff(b.front, f0)) > (0.5 * Math.PI) / 180)) return null;
   const f = fwd(f0);
   const r = right(f0);
   const proj = (v: Vec2, u: Vec2) => v.x * u.x + v.y * u.y;
   for (let i = 1; i < bs.length; i++) {
     const gap = proj(sub(bs[i - 1].anchor, bs[i].anchor), f);
-    if (Math.abs(gap - (blockWidth(bs[i - 1], fi) + fi)) > TOL) return false;
+    if (Math.abs(gap - (blockWidth(bs[i - 1], fi) + fi)) > TOL) return null;
   }
   const aligned = (side: 'right' | 'left') => {
     const x0 = proj(flankPos(bs[0], side, fi), r);
@@ -82,8 +83,10 @@ function isColumn(s: FormationState, fi: number): boolean {
     const x0 = proj(bs[0].anchor, r);
     return bs.every((b) => Math.abs(proj(b.anchor, r) - x0) <= TOL);
   };
-  return aligned('right') || aligned('left') || centred();
+  return aligned('right') ? 'right' : aligned('left') ? 'left' : centred() ? 'centre' : null;
 }
+
+const isColumn = (s: FormationState, fi: number) => columnAlignment(s, fi) !== null;
 
 function isLine(s: FormationState, fi: number): boolean {
   const bs = occupied(s);
@@ -168,6 +171,14 @@ export function resizeAboutDress(
     const held = guidePoint(c, s, d);
     const built = asLine(c, { x: 0, y: 0 }, companyFront(s), ranks, order, s.dressBy, d);
     const moved = translateState(built, sub(held, guidePoint(c, built, d)));
+    return { ...moved, menFacing: s.menFacing };
+  }
+
+  const alignment = columnAlignment(s, fiOld);
+  if (alignment) {
+    const held = guidePoint(c, s, d);
+    const built = asColumnOfPlatoons(c, { x: 0, y: 0 }, companyFront(s), ranks, order, alignment, d);
+    const moved = translateState({ ...built, dressBy: s.dressBy }, sub(held, guidePoint(c, { ...built, dressBy: s.dressBy }, d)));
     return { ...moved, menFacing: s.menFacing };
   }
 

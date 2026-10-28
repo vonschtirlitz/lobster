@@ -46,6 +46,16 @@ describe('wheel', () => {
     expect(toLine.end.blocks[0].front).toBeCloseTo(up);
   });
 
+  it('unequal platoons wheel into column but do not wheel back into a closed line', () => {
+    // Drill-faithful: divisions must be equalised to re-form line by wheeling.
+    const uneven = makeCompany([24, 15]);
+    const line = asLine(uneven, { x: 0, y: 0 }, up, 3, 'close', 'right', d);
+    const column = buildSegment(wheel('right', 'platoons'), 0, line, uneven, d).end;
+    expect(describeState(column, d)).toBe('column');
+    const back = buildSegment(wheel('left', 'platoons'), 0, column, uneven, d).end;
+    expect(describeState(back, d)).toBe('irregular');
+  });
+
   it('cannot wheel while faced to a flank', () => {
     const faced: FormationState = { ...start, menFacing: 'right' };
     const seg = buildSegment(wheel('right', 'company'), 2, faced, c, d);

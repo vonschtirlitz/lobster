@@ -60,11 +60,14 @@ canvas.addEventListener(
 );
 
 function frame() {
-  if (dirty) {
-    dirty = false;
-    drawScene(ctx, cam, store, replay, palette, overlay);
+  try {
+    if (dirty) {
+      dirty = false;
+      drawScene(ctx, cam, store, replay, palette, overlay);
+    }
+  } finally {
+    requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 

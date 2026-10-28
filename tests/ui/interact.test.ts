@@ -1,8 +1,8 @@
-import { hitTest } from '../../src/ui/canvas/interact';
+import { edgeResize, hitTest } from '../../src/ui/canvas/interact';
 import { Camera } from '../../src/ui/canvas/camera';
 import { defaultScene, type UiState } from '../../src/state/store';
 import { layout } from '../../src/model/layout';
-import { lineAnchor } from '../../src/model/formation';
+import { asLine, lineAnchor } from '../../src/model/formation';
 import { getDrill } from '../../src/drill/registry';
 
 const scene = defaultScene();
@@ -44,5 +44,15 @@ describe('hitTest', () => {
   it('when editing the ghost, the current block is not hit', () => {
     const r = hitTest(scene, ui({ editTarget: 'ghost', selected: [] }), cam, S(lineAnchor(scene.current[c.id], d)));
     expect(r).toBeNull();
+  });
+});
+
+describe('edgeResize', () => {
+  it('narrowing past the held flank keeps the company facing the same way', () => {
+    const east = asLine(c, { x: 0, y: 0 }, 0, 3, 'close', 'right', d);
+    const far = { x: 0, y: -100 }; // well beyond the right flank (right hand points to -y when facing east)
+    const r = edgeResize(c, east, 'left', far, d);
+    expect(r.state.blocks[0].front).toBeCloseTo(0);
+    expect(r.files).toBeGreaterThan(0);
   });
 });

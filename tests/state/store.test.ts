@@ -64,6 +64,26 @@ describe('persist', () => {
     }
     expect(store.get()).toBe(before);
   });
+
+  it('import rejects a version-1 file with malformed contents', () => {
+    const good = defaultScene();
+    const id = good.companies[0].id;
+    const variants: ((s: any) => void)[] = [
+      (s) => delete s.companies[0].officers,
+      (s) => delete s.current[id].blocks[0].anchor,
+      (s) => (s.orders[id] = [null]),
+      (s) => (s.ghost[id].order = 'loose'),
+      (s) => (s.current[id].dressBy = 'sideways'),
+      (s) => (s.companies[0].platoons[0].men = 'many'),
+      (s) => (s.settings.tolerancePaces = 'x'),
+    ];
+    for (const mutate of variants) {
+      const s = JSON.parse(exportScene(good));
+      mutate(s);
+      const r = importScene(JSON.stringify(s));
+      expect(r.ok, mutate.toString()).toBe(false);
+    }
+  });
 });
 
 describe('replay', () => {

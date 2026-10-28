@@ -1,4 +1,5 @@
-import type { FormationState, Vec2 } from '../../model/types';
+import type { Company, FormationState, Vec2 } from '../../model/types';
+import type { DrillSystem } from '../../drill/types';
 import type { Scene, Store, UiState } from '../../state/store';
 import { getDrill } from '../../drill/registry';
 import { flankPos } from '../../model/layout';
@@ -43,6 +44,23 @@ export function hitTest(scene: Scene, ui: UiState, cam: Camera, screenPt: Vec2):
     if (s.blocks.some((b) => b.files > 0 && inPolygon(world, blockCorners(b, d, s.order)))) return { kind: 'body', companyId: id };
   }
   return null;
+}
+
+/** Re-form a line to the width set by dragging one flank handle, holding the dressing point and the front. */
+export function edgeResize(c: Company, base: FormationState, side: 'left' | 'right', world: Vec2, d: DrillSystem) {
+  const fi = d.defaults.fileInterval[base.order];
+  const occ = base.blocks.filter((b) => b.files > 0);
+  const R = flankPos(occ[0], 'right', fi);
+  const L = flankPos(occ[occ.length - 1], 'left', fi);
+  const dir = right(companyFront(base));
+  const proj = (v: Vec2) => v.x * dir.x + v.y * dir.y;
+  const width =
+    base.dressBy === 'centre' ? 2 * Math.abs(proj(sub(world, lerp(R, L, 0.5)))) : side === 'right' ? proj(sub(world, L)) : proj(sub(R, world));
+  // a minimum length keeps the drag's direction, and so the front, defined
+  const r = frontageFromDrag(c, { x: 0, y: 0 }, scale(dir, Math.max(1e-3, width)), base, d);
+  const held = base.dressBy === 'centre' ? lerp(R, L, 0.5) : guidePoint(c, base, d);
+  const now = base.dressBy === 'centre' ? lineAnchor(r.state, d) : guidePoint(c, r.state, d);
+  return { ...r, state: { ...translateState(r.state, sub(held, now)), menFacing: base.menFacing } };
 }
 
 type Drag =
@@ -160,23 +178,12 @@ export function attachInteractions(canvas: HTMLCanvasElement, cam: Camera, store
       case 'edge': {
         const c = scene.companies.find((x) => x.id === (drag as { id: string }).id);
         if (!c) break;
-        const base = drag.base;
-        const fi = d.defaults.fileInterval[base.order];
-        const occ = base.blocks.filter((b) => b.files > 0);
+        const r = edgeResize(c, drag.base, drag.side, world, d);
+        const state = r.state;
+        const fi = d.defaults.fileInterval[drag.base.order];
+        const occ = drag.base.blocks.filter((b) => b.files > 0);
         const R = flankPos(occ[0], 'right', fi);
         const L = flankPos(occ[occ.length - 1], 'left', fi);
-        const dir = right(companyFront(base));
-        const proj = (v: Vec2) => v.x * dir.x + v.y * dir.y;
-        const width =
-          base.dressBy === 'centre'
-            ? 2 * Math.abs(proj(sub(world, lerp(R, L, 0.5))))
-            : drag.side === 'right'
-              ? proj(sub(world, L))
-              : proj(sub(R, world));
-        const r = frontageFromDrag(c, { x: 0, y: 0 }, scale(dir, Math.max(0, width)), base, d);
-        const held = base.dressBy === 'centre' ? lerp(R, L, 0.5) : guidePoint(c, base, d);
-        const now = base.dressBy === 'centre' ? lineAnchor(r.state, d) : guidePoint(c, r.state, d);
-        const state = { ...translateState(r.state, sub(held, now)), menFacing: base.menFacing };
         overlay.frontage = { a: R, b: L, label: `${r.files} ${d.terms.files} × ${r.ranks} ${d.terms.ranks}`, note: r.note };
         setPreview(new Map([[c.id, state]]), true);
         break;
