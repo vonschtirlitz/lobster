@@ -3,7 +3,7 @@ import { feedbackLink } from '../feedback';
 
 const STEPS: [string, string][] = [
   ['Pick a company.', 'Click it on the field or in the Companies panel. "+ Add company" puts a new one on the field.'],
-  ['Set where it stands.', 'Choose Edit: Start in the toolbar, then drag the company into position.'],
+  ['Set where it starts.', 'Choose Edit: Start in the toolbar, then drag the company into position.'],
   [
     'Set where it should end up.',
     'Choose Edit: Ghost and drag the faint copy to the goal. Right-drag across the field to lay out a new frontage; the men face to the left of the direction you drag.',
@@ -34,7 +34,7 @@ export function mountHelp(host: HTMLElement): () => void {
     h(
       'p',
       {},
-      'You set where a company stands, where you want it to finish, and the words of command you would give. LOBSTER drills the company through them and shows how close it got.',
+      'You set where a company starts, where you want it to finish, and the words of command you would give. LOBSTER drills the company through them and shows how close it got.',
     ),
     h('ol', { class: 'help-steps' }, ...STEPS.map(([lead, rest]) => h('li', {}, h('strong', {}, lead), ` ${rest}`))),
     h(
