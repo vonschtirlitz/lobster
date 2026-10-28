@@ -521,3 +521,34 @@ dialog.help h3 {
   justify-content: flex-end;
   margin-top: 12px;
 }
+
+dialog.mobile-notice {
+  width: calc(100vw - 32px);
+  max-width: 440px;
+  padding: 20px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+dialog.mobile-notice::backdrop {
+  background: rgb(20 18 14 / 0.6);
+}
+
+dialog.mobile-notice h2 {
+  font: 600 22px/1.25 var(--font-title);
+  margin: 0 0 10px;
+}
+
+.mobile-notice-url {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.mobile-notice-dismiss {
+  min-height: 44px;
+  padding: 8px 16px;
+}

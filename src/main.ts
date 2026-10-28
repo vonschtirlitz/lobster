@@ -10,6 +10,7 @@ import { mountSetup } from './ui/panels/setup';
 import { mountOrders } from './ui/panels/orders';
 import { mountReplayBar } from './ui/panels/replaybar';
 import { mountHelp } from './ui/panels/help';
+import { mountMobileNotice } from './ui/mobile-notice';
 import { h } from './ui/dom';
 
 const store = createStore(loadAutosave() ?? defaultScene());
@@ -92,3 +93,4 @@ mountToolbar(document.getElementById('toolbar')!, store, fit, showError, mountHe
 mountSetup(document.getElementById('setup')!, store);
 mountOrders(document.getElementById('orders')!, store, replay);
 mountReplayBar(document.getElementById('replay')!, store, replay);
+mountMobileNotice(document.body);

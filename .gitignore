@@ -4,6 +4,7 @@ dist/
 
 # Local tooling
 .superpowers/
+anti-slop/
 
 # Terraform: state, plans and local variable files never go to GitHub
 terraform/.terraform/
