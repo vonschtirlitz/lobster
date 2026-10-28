@@ -112,7 +112,9 @@ describe('execute', () => {
       execute(input, d);
       best = Math.min(best, performance.now() - t);
     }
-    expect(best).toBeLessThan(16);
+    // One 60 fps frame locally; shared CI runners only need to catch a real slowdown.
+    const ci = (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env.CI;
+    expect(best).toBeLessThan(ci ? 50 : 16);
   });
 });
 
