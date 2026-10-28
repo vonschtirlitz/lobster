@@ -86,5 +86,5 @@ export interface Timeline {
   starts: Map<string, FormationState>;
   segments: Map<string, Segment[]>;
   sample(t: number): Map<string, Figure[]>;
-  path(companyId: string): Vec2[];
+  path(companyId: string): Vec2[]; // centre of the front rank traced over time
 }

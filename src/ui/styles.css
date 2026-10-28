@@ -412,3 +412,18 @@ input[type='number'] {
   border-radius: var(--radius);
   pointer-events: none;
 }
+
+details {
+  margin: 8px 0;
+}
+
+details summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.replay button svg {
+  display: block;
+}

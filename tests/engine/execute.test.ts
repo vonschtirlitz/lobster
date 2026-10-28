@@ -1,6 +1,6 @@
 import { execute, endState } from '../../src/engine/execute';
 import { compareToGhost } from '../../src/engine/compare';
-import { asLine, guidePoint, translateState } from '../../src/model/formation';
+import { asLine, lineAnchor, translateState } from '../../src/model/formation';
 import { layout } from '../../src/model/layout';
 import { gb1764 as d } from '../../src/drill/gb1764';
 import { makeCompany } from '../helpers';
@@ -65,7 +65,17 @@ describe('execute', () => {
     expect(tl.duration).toBeCloseTo(segs[0].t1);
   });
 
-  it('path follows the wheel along an arc and ends at the end guide point', () => {
+  it('path traces the front-rank centre, so a right wheel dressed by the right still shows an arc', () => {
+    const a = company('a', [36, 36]);
+    const start = line(a);
+    const tl = execute([{ company: a, start, orders: [o('wheel', { direction: 'right', degrees: 90, by: 'company' })] }], d);
+    const path = tl.path('a');
+    const travelled = path.slice(1).reduce((sum, p, i) => sum + dist(p, path[i]), 0);
+    const halfFront = (23 * 0.75) / 2;
+    expect(travelled).toBeGreaterThan(0.95 * halfFront * (Math.PI / 2));
+  });
+
+  it('path follows the wheel along an arc and ends at the end front-rank centre', () => {
     const a = company('a', [36, 36]);
     const start = line(a);
     const tl = execute(
@@ -73,8 +83,8 @@ describe('execute', () => {
       d,
     );
     const path = tl.path('a');
-    const g0 = guidePoint(a, start, d);
-    const g1 = guidePoint(a, endState(tl, 'a')!, d);
+    const g0 = lineAnchor(start, d);
+    const g1 = lineAnchor(endState(tl, 'a')!, d);
     expect(dist(path[0], g0)).toBeLessThan(1e-6);
     expect(dist(path[path.length - 1], g1)).toBeLessThan(1e-6);
     // the right flank swings around the left-flank pivot: some point lies well off the chord

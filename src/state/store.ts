@@ -53,8 +53,8 @@ function makeCompany(index: number, d: DrillSystem): Company {
   return {
     id: newId(),
     name: `${ORDINALS[index] ?? `${index + 1}th`} Company`,
-    rankAndFile: 40,
-    platoons: splitMen(40, count).map((men, i) => ({ id: newId(), name: `${ORDINALS[i]} Platoon`, men })),
+    rankAndFile: 42,
+    platoons: splitMen(42, count).map((men, i) => ({ id: newId(), name: `${ORDINALS[i]} Platoon`, men })),
     officers: { captain: true, lieutenant: true, ensign: true },
     ncos: { sergeants: 2, corporals: 2, drummer: true },
     colour: COLOURS[index % COLOURS.length],

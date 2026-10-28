@@ -111,7 +111,7 @@ export function drawScene(
     if (orders.length === 0) {
       dashedLine(ctx, S(guidePoint(c, shownCurrent, d)), S(guidePoint(c, shownGhost, d)), pal.muted, [4, 6], 1.25);
     } else {
-      drawArrow(ctx, cam, c, tl, pal, d);
+      drawArrow(ctx, cam, c, tl);
     }
 
     // ghost
@@ -134,6 +134,7 @@ export function drawScene(
     const figs = !editingGhost && previewFor.has(c.id) ? layout(c, shownCurrent, d) : sampled?.get(c.id) ?? layout(c, current, d);
     drawFigures(ctx, cam, c, figs, pal);
     if (!sampled) drawGuide(ctx, cam, c, shownCurrent, d, 1);
+    if (orders.length) drawOrderMarks(ctx, cam, c, tl, pal, d);
 
     // selection
     if (ui.selected.includes(c.id)) {
@@ -173,7 +174,7 @@ export function drawScene(
     ctx.moveTo(A.x, A.y);
     ctx.lineTo(B.x, B.y);
     ctx.stroke();
-    ctx.font = '13px var(--font-ui, system-ui)';
+    ctx.font = '13px system-ui, sans-serif';
     ctx.fillStyle = pal.ink;
     ctx.fillText(label, B.x + 10, B.y - 8);
     if (note) {
@@ -223,7 +224,7 @@ function drawScaleBar(ctx: CanvasRenderingContext2D, cam: Camera, pal: Palette, 
   ctx.lineTo(x + px(paces), y - 5);
   ctx.stroke();
   ctx.fillStyle = pal.ink;
-  ctx.font = '12px var(--font-ui, system-ui)';
+  ctx.font = '12px system-ui, sans-serif';
   ctx.fillText(`${paces} paces`, x + px(paces) + 8, y + 4);
   ctx.restore();
 }
@@ -296,14 +297,7 @@ function drawGuide(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, s: Fo
   ctx.restore();
 }
 
-function drawArrow(
-  ctx: CanvasRenderingContext2D,
-  cam: Camera,
-  c: Company,
-  tl: ReturnType<Replay['timeline']>,
-  pal: Palette,
-  d: DrillSystem,
-) {
+function drawArrow(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, tl: ReturnType<Replay['timeline']>) {
   const path = tl.path(c.id).map((p) => cam.worldToScreen(p));
   if (path.length < 2) return;
   const width = Math.max(5, cam.zoom * 0.9);
@@ -339,15 +333,24 @@ function drawArrow(
     );
   }
   ctx.restore();
+}
 
-  // numbered order ticks and the error marker
+/** Numbered markers where each order is given, drawn above the men so they stay readable. */
+function drawOrderMarks(
+  ctx: CanvasRenderingContext2D,
+  cam: Camera,
+  c: Company,
+  tl: ReturnType<Replay['timeline']>,
+  pal: Palette,
+  d: DrillSystem,
+) {
   const segs = tl.segments.get(c.id) ?? [];
   ctx.save();
-  ctx.font = 'bold 10px var(--font-ui, system-ui)';
+  ctx.font = 'bold 10px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   segs.forEach((seg, i) => {
-    const p = cam.worldToScreen(guidePoint(c, seg.start, d));
+    const p = cam.worldToScreen(lineAnchor(seg.start, d));
     if (seg.error) {
       ctx.strokeStyle = pal.error;
       ctx.lineWidth = 2.5;

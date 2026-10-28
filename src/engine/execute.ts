@@ -1,6 +1,6 @@
 import type { DrillSystem } from '../drill/types';
 import type { Company, Figure, FormationState, Order, Segment, Timeline, Vec2 } from '../model/types';
-import { guidePoint } from '../model/formation';
+import { lineAnchor } from '../model/formation';
 import { layout } from '../model/layout';
 import { buildSegment } from './primitives';
 
@@ -67,14 +67,13 @@ export function execute(input: ExecuteInput[], d: DrillSystem): Timeline {
   };
 
   const tracePath = (id: string): Vec2[] => {
-    const c = companies.get(id)!;
-    const pts: Vec2[] = [guidePoint(c, starts.get(id)!, d)];
+    const pts: Vec2[] = [lineAnchor(starts.get(id)!, d)];
     for (const seg of segments.get(id)!) {
       if (seg.error) break;
       if (seg.stateAt) {
-        for (let t = seg.t0 + PATH_STEP; t < seg.t1; t += PATH_STEP) pts.push(guidePoint(c, seg.stateAt(t), d));
+        for (let t = seg.t0 + PATH_STEP; t < seg.t1; t += PATH_STEP) pts.push(lineAnchor(seg.stateAt(t), d));
       }
-      pts.push(guidePoint(c, seg.end, d));
+      pts.push(lineAnchor(seg.end, d));
     }
     return pts;
   };

@@ -11,6 +11,7 @@ const ORDINALS = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th',
 const MAX_PLATOONS = 10;
 
 export function mountSetup(el: HTMLElement, store: Store) {
+  let detailsOpen = false;
   const render = () => {
     const scene = store.get();
     const ui = store.ui();
@@ -131,66 +132,71 @@ export function mountSetup(el: HTMLElement, store: Store) {
         h('label', {}, d.terms.rankAndFile ?? 'Rank and file'),
         numberInput(c.rankAndFile, (n) => update({ rankAndFile: Math.max(1, Math.round(n)) }), { min: 1, label: d.terms.rankAndFile ?? 'Rank and file' }),
       ),
+      ...warnings.map((w) => h('div', { class: 'warn', role: 'status' }, w)),
       h(
-        'div',
-        { class: 'row' },
-        h('label', {}, `${d.terms.platoon ?? 'Platoon'}s`),
-        numberInput(c.platoons.length, setPlatoonCount, { min: 1, max: MAX_PLATOONS, label: 'Number of platoons' }),
-      ),
-      ...c.platoons.map((p, i) =>
+        'details',
+        { open: detailsOpen, on: { toggle: (e) => (detailsOpen = (e.target as HTMLDetailsElement).open) } },
+        h('summary', {}, `${d.terms.platoon ?? 'Platoon'}s, officers and NCOs`),
         h(
           'div',
-          { class: 'row', style: 'padding-left:12px' },
-          h('input', {
-            type: 'text',
-            value: p.name,
-            'aria-label': `${p.name} name`,
-            style: 'width:120px',
-            on: {
-              change: (e) =>
+          { class: 'row' },
+          h('label', {}, `${d.terms.platoon ?? 'Platoon'}s`),
+          numberInput(c.platoons.length, setPlatoonCount, { min: 1, max: MAX_PLATOONS, label: 'Number of platoons' }),
+        ),
+        ...c.platoons.map((p, i) =>
+          h(
+            'div',
+            { class: 'row', style: 'padding-left:12px' },
+            h('input', {
+              type: 'text',
+              value: p.name,
+              'aria-label': `${p.name} name`,
+              style: 'width:120px',
+              on: {
+                change: (e) =>
+                  store.dispatch({
+                    type: 'setPlatoons',
+                    id: c.id,
+                    platoons: c.platoons.map((x, j) => (j === i ? { ...x, name: (e.target as HTMLInputElement).value } : x)),
+                  }),
+              },
+            }),
+            numberInput(
+              p.men,
+              (n) =>
                 store.dispatch({
                   type: 'setPlatoons',
                   id: c.id,
-                  platoons: c.platoons.map((x, j) => (j === i ? { ...x, name: (e.target as HTMLInputElement).value } : x)),
+                  platoons: c.platoons.map((x, j) => (j === i ? { ...x, men: Math.max(0, Math.round(n)) } : x)),
                 }),
-            },
-          }),
-          numberInput(
-            p.men,
-            (n) =>
-              store.dispatch({
-                type: 'setPlatoons',
-                id: c.id,
-                platoons: c.platoons.map((x, j) => (j === i ? { ...x, men: Math.max(0, Math.round(n)) } : x)),
-              }),
-            { min: 0, label: `${p.name} men` },
+              { min: 0, label: `${p.name} men` },
+            ),
+            h('span', { style: 'color:var(--muted)' }, 'men'),
           ),
-          h('span', { style: 'color:var(--muted)' }, 'men'),
         ),
+        h('h3', {}, 'Officers'),
+        h(
+          'div',
+          { class: 'row' },
+          check('Captain', c.officers.captain, (v) => update({ officers: { ...c.officers, captain: v } })),
+          check('Lieutenant', c.officers.lieutenant, (v) => update({ officers: { ...c.officers, lieutenant: v } })),
+          check('Ensign', c.officers.ensign, (v) => update({ officers: { ...c.officers, ensign: v } })),
+        ),
+        h('h3', {}, 'NCOs and drummer'),
+        h(
+          'div',
+          { class: 'row' },
+          h('label', {}, 'Sergeants'),
+          numberInput(c.ncos.sergeants, (n) => update({ ncos: { ...c.ncos, sergeants: Math.max(0, Math.round(n)) } }), { min: 0, label: 'Sergeants' }),
+        ),
+        h(
+          'div',
+          { class: 'row' },
+          h('label', {}, 'Corporals'),
+          numberInput(c.ncos.corporals, (n) => update({ ncos: { ...c.ncos, corporals: Math.max(0, Math.round(n)) } }), { min: 0, label: 'Corporals' }),
+        ),
+        h('div', { class: 'row' }, check('Drummer', c.ncos.drummer, (v) => update({ ncos: { ...c.ncos, drummer: v } }))),
       ),
-      ...warnings.map((w) => h('div', { class: 'warn', role: 'status' }, w)),
-      h('h3', {}, 'Officers'),
-      h(
-        'div',
-        { class: 'row' },
-        check('Captain', c.officers.captain, (v) => update({ officers: { ...c.officers, captain: v } })),
-        check('Lieutenant', c.officers.lieutenant, (v) => update({ officers: { ...c.officers, lieutenant: v } })),
-        check('Ensign', c.officers.ensign, (v) => update({ officers: { ...c.officers, ensign: v } })),
-      ),
-      h('h3', {}, 'NCOs and drummer'),
-      h(
-        'div',
-        { class: 'row' },
-        h('label', {}, 'Sergeants'),
-        numberInput(c.ncos.sergeants, (n) => update({ ncos: { ...c.ncos, sergeants: Math.max(0, Math.round(n)) } }), { min: 0, label: 'Sergeants' }),
-      ),
-      h(
-        'div',
-        { class: 'row' },
-        h('label', {}, 'Corporals'),
-        numberInput(c.ncos.corporals, (n) => update({ ncos: { ...c.ncos, corporals: Math.max(0, Math.round(n)) } }), { min: 0, label: 'Corporals' }),
-      ),
-      h('div', { class: 'row' }, check('Drummer', c.ncos.drummer, (v) => update({ ncos: { ...c.ncos, drummer: v } }))),
       h('h3', {}, `Formation (editing ${ui.editTarget === 'ghost' ? 'ghost' : 'start'})`),
       h(
         'div',

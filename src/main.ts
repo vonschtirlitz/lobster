@@ -7,6 +7,8 @@ import { drawScene, readPalette, sceneBounds, type Overlay } from './ui/canvas/r
 import { attachInteractions } from './ui/canvas/interact';
 import { mountToolbar } from './ui/panels/toolbar';
 import { mountSetup } from './ui/panels/setup';
+import { mountOrders } from './ui/panels/orders';
+import { mountReplayBar } from './ui/panels/replaybar';
 import { h } from './ui/dom';
 
 const store = createStore(loadAutosave() ?? defaultScene());
@@ -84,3 +86,5 @@ function showError(message: string) {
 
 mountToolbar(document.getElementById('toolbar')!, store, fit, showError);
 mountSetup(document.getElementById('setup')!, store);
+mountOrders(document.getElementById('orders')!, store, replay);
+mountReplayBar(document.getElementById('replay')!, store, replay);
