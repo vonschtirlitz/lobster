@@ -9,6 +9,7 @@ import { mountToolbar } from './ui/panels/toolbar';
 import { mountSetup } from './ui/panels/setup';
 import { mountOrders } from './ui/panels/orders';
 import { mountReplayBar } from './ui/panels/replaybar';
+import { mountHelp } from './ui/panels/help';
 import { h } from './ui/dom';
 
 const store = createStore(loadAutosave() ?? defaultScene());
@@ -87,7 +88,7 @@ function showError(message: string) {
   field.append(toast);
 }
 
-mountToolbar(document.getElementById('toolbar')!, store, fit, showError);
+mountToolbar(document.getElementById('toolbar')!, store, fit, showError, mountHelp(document.body));
 mountSetup(document.getElementById('setup')!, store);
 mountOrders(document.getElementById('orders')!, store, replay);
 mountReplayBar(document.getElementById('replay')!, store, replay);

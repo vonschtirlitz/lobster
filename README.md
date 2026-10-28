@@ -53,6 +53,8 @@ Open the URL Vite prints (usually http://localhost:5173).
 
 ## How to use it
 
+New here? The **I don't know what I'm doing** button in the toolbar opens a short walkthrough.
+
 | To… | Do this |
 |---|---|
 | Pan / zoom | Drag empty ground / mouse wheel. **Fit** frames every company |

@@ -456,3 +456,68 @@ details summary {
   min-width: 96px;
   color: var(--muted);
 }
+
+.toolbar .help-button {
+  margin-left: auto;
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+dialog.help {
+  max-width: min(600px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  padding: 20px 24px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+dialog.help::backdrop {
+  background: rgb(20 18 14 / 0.45);
+}
+
+dialog.help h2 {
+  font: 600 22px var(--font-title);
+  margin: 0 0 8px;
+}
+
+dialog.help h3 {
+  font: 600 16px var(--font-title);
+  margin: 16px 0 6px;
+}
+
+.help-steps {
+  padding-left: 22px;
+  margin: 12px 0;
+}
+
+.help-steps li {
+  margin: 6px 0;
+}
+
+.help-controls {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.help-controls th,
+.help-controls td {
+  text-align: left;
+  padding: 4px 8px 4px 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.help-controls th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.help-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

@@ -31,7 +31,13 @@ export function applyDress(store: Store, dressBy: DressPoint) {
   if (changes.length) store.dispatch({ type: 'setFormations', changes });
 }
 
-export function mountToolbar(el: HTMLElement, store: Store, fit: () => void, showError: (msg: string) => void) {
+export function mountToolbar(
+  el: HTMLElement,
+  store: Store,
+  fit: () => void,
+  showError: (msg: string) => void,
+  openHelp: () => void,
+) {
   const fileInput = h('input', { type: 'file', accept: 'application/json,.json', hidden: true });
   fileInput.addEventListener('change', async () => {
     const file = fileInput.files?.[0];
@@ -121,6 +127,7 @@ export function mountToolbar(el: HTMLElement, store: Store, fit: () => void, sho
       h('button', { type: 'button', on: { click: fit } }, 'Fit'),
       h('button', { type: 'button', on: { click: save } }, 'Save'),
       h('button', { type: 'button', on: { click: () => fileInput.click() } }, 'Load'),
+      h('button', { type: 'button', class: 'help-button', on: { click: openHelp } }, "I don't know what I'm doing"),
       fileInput,
     );
   };
