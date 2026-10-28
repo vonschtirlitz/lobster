@@ -17,9 +17,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: ${{ vars.SITE_URL }}
+    # No `environment:` here: it would change the OIDC subject claim to
+    # repo:<repo>:environment:<name>, which the deploy role's trust policy
+    # (main branch only) does not accept.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
