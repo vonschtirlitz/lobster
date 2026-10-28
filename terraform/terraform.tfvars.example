@@ -3,5 +3,5 @@
 
 # subdomain     = "lobster"
 # parent_domain = "18thcenturymaterialculture.org"
-# github_repo   = "vonschtirlitz/lobster"
+# github_oidc_subject_prefix = "repo:vonschtirlitz@19292512/lobster@1436438811"
 # price_class   = "PriceClass_100"
