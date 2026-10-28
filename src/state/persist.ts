@@ -43,7 +43,7 @@ export function importScene(json: string): { ok: true; scene: Scene } | { ok: fa
   } catch {
     return { ok: false, error: 'This file is not valid JSON.' };
   }
-  if (!isObj(raw)) return { ok: false, error: 'This file is not an order planner scene.' };
+  if (!isObj(raw)) return { ok: false, error: 'This file is not a LOBSTER scene.' };
   if (raw.version !== 1) return { ok: false, error: `Unsupported scene version: ${String(raw.version)}.` };
   for (const k of ['drillId', 'companies', 'current', 'ghost', 'orders', 'settings']) {
     if (!(k in raw)) return { ok: false, error: `The scene is missing "${k}".` };

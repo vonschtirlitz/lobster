@@ -1,7 +1,8 @@
 {
-  "name": "orderplanner",
+  "name": "lobster",
   "private": true,
   "version": "0.1.0",
+  "description": "LOBSTER: Line Order Builder & Simulated Troop Evolution Rehearser. Plan and replay 18th-century line-infantry drill in the browser.",
   "type": "module",
   "scripts": {
     "dev": "vite",

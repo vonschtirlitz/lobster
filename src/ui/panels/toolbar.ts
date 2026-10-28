@@ -47,7 +47,7 @@ export function mountToolbar(el: HTMLElement, store: Store, fit: () => void, sho
 
   const save = () => {
     const blob = new Blob([exportScene(store.get())], { type: 'application/json' });
-    const a = h('a', { href: URL.createObjectURL(blob), download: 'order-planner-scene.json' });
+    const a = h('a', { href: URL.createObjectURL(blob), download: 'lobster-scene.json' });
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
@@ -61,7 +61,12 @@ export function mountToolbar(el: HTMLElement, store: Store, fit: () => void, sho
     const none = !s;
 
     el.replaceChildren(
-      h('h1', {}, 'Order Planner'),
+      h(
+        'h1',
+        { title: 'Loud Officers Barking Simple Terms at Exhausted Redcoats' },
+        h('img', { src: `${import.meta.env.BASE_URL}favicon.svg`, alt: '', width: 24, height: 24 }),
+        'LOBSTER',
+      ),
       segmented(
         'Tool',
         [

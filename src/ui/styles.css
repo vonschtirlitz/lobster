@@ -69,7 +69,10 @@ body {
 .toolbar h1 {
   font: 600 19px var(--font-title);
   margin: 0 10px 0 0;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .field {
