@@ -103,11 +103,10 @@ export function mountOrders(el: HTMLElement, store: Store, replay: Replay) {
             'div',
             {},
             h(
-              'div',
+              'button',
               {
+                type: 'button',
                 class: 'words',
-                role: 'button',
-                tabindex: 0,
                 title: 'Show the company as this word is given',
                 on: {
                   click: () => {
@@ -124,6 +123,8 @@ export function mountOrders(el: HTMLElement, store: Store, replay: Replay) {
           h(
             'div',
             { class: 'actions' },
+            h('button', { type: 'button', title: 'Move this order up', 'aria-label': `Move order ${i + 1} up`, disabled: i === 0, on: { click: () => store.dispatch({ type: 'moveOrder', id, from: i, to: i - 1 }) } }, '↑'),
+            h('button', { type: 'button', title: 'Move this order down', 'aria-label': `Move order ${i + 1} down`, disabled: i === orders.length - 1, on: { click: () => store.dispatch({ type: 'moveOrder', id, from: i, to: i + 1 }) } }, '↓'),
             h('button', { type: 'button', title: 'Insert an order after this one', 'aria-label': `Insert after order ${i + 1}`, on: { click: () => ((insertAt = i + 1), render()) } }, '+'),
             h('button', { type: 'button', title: 'Remove this order', 'aria-label': `Remove order ${i + 1}`, on: { click: () => store.dispatch({ type: 'removeOrder', id, orderId: o.id }) } }, '×'),
           ),
@@ -140,6 +141,7 @@ export function mountOrders(el: HTMLElement, store: Store, replay: Replay) {
     el.replaceChildren(
       ...[
       h('h2', {}, `Orders: ${c.name}`),
+      d.draftNote ? h('p', { class: 'note' }, d.draftNote) : null,
       orders.length ? list : h('p', { style: 'color:var(--muted)' }, 'No orders yet. Add the words of command below.'),
       h(
         'div',
@@ -188,7 +190,8 @@ export function mountOrders(el: HTMLElement, store: Store, replay: Replay) {
           },
           'Make this the start',
         ),
-        h('button', { type: 'button', disabled: true, title: PLAN_UNAVAILABLE }, 'Suggest orders'),
+        // TODO: wire to engine.plan() once the plan → orders phase exists.
+        h('button', { type: 'button', disabled: true, title: PLAN_UNAVAILABLE }, 'Suggest orders (coming soon)'),
       ),
       ].filter((x): x is NonNullable<typeof x> => x !== null),
     );

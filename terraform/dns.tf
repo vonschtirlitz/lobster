@@ -1,6 +1,4 @@
-# ── DNS + certificate ────────────────────────────────────────────────────────
-# The parent zone is owned by the material-culture stack; this stack only
-# looks it up and adds the subdomain's records.
+# The parent zone belongs to the material-culture stack; this one only adds the subdomain.
 
 data "aws_route53_zone" "parent" {
   name         = var.parent_domain

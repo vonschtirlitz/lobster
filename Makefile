@@ -4,7 +4,7 @@ TF := cd terraform && terraform
 
 help:
 	@echo ""
-	@echo "LOBSTER — available targets:"
+	@echo "LOBSTER make targets:"
 	@echo ""
 	@echo "  infra-init     terraform init"
 	@echo "  infra-plan     terraform plan"

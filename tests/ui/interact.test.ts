@@ -1,4 +1,4 @@
-import { edgeResize, hitTest } from '../../src/ui/canvas/interact';
+import { edgeResize, hitTest, keyEdit } from '../../src/ui/canvas/interact';
 import { Camera } from '../../src/ui/canvas/camera';
 import { defaultScene, type UiState } from '../../src/state/store';
 import { layout } from '../../src/model/layout';
@@ -54,5 +54,39 @@ describe('edgeResize', () => {
     const r = edgeResize(c, east, 'left', far, d);
     expect(r.state.blocks[0].front).toBeCloseTo(0);
     expect(r.files).toBeGreaterThan(0);
+  });
+});
+
+describe('keyEdit', () => {
+  const line = () => asLine(c, { x: 0, y: 0 }, 0, 3, 'close', 'right', d);
+  const files = (s: ReturnType<typeof line>) => s.blocks.reduce((n, b) => n + b.files, 0);
+  const rightFlank = (s: ReturnType<typeof line>) => layout(c, s, d).find((f) => f.slot === 'p0:f0:r0')!.pos;
+
+  it('arrow keys move the formation one pace, Shift ten', () => {
+    expect(keyEdit(c, line(), 'ArrowUp', false, d)!.blocks[0].anchor.y).toBeCloseTo(line().blocks[0].anchor.y + 1);
+    expect(keyEdit(c, line(), 'ArrowLeft', true, d)!.blocks[0].anchor.x).toBeCloseTo(line().blocks[0].anchor.x - 10);
+  });
+
+  it('[ and ] rotate about the front-rank centre', () => {
+    const turned = keyEdit(c, line(), ']', false, d)!;
+    expect(turned.blocks[0].front).toBeCloseTo(-Math.PI / 36);
+    expect(lineAnchor(turned, d).x).toBeCloseTo(lineAnchor(line(), d).x);
+  });
+
+  it('+ widens to the next shallower depth and - narrows to the next deeper, holding the dressing point', () => {
+    const wider = keyEdit(c, line(), '+', false, d)!;
+    expect(files(wider)).toBeGreaterThan(files(line()));
+    expect(wider.blocks[0].front).toBeCloseTo(0);
+    expect(rightFlank(wider).x).toBeCloseTo(rightFlank(line()).x);
+    expect(rightFlank(wider).y).toBeCloseTo(rightFlank(line()).y);
+    expect(files(keyEdit(c, wider, '-', false, d)!)).toBe(files(line()));
+  });
+
+  it('returns null at the depth limits', () => {
+    expect(keyEdit(c, line(), '-', false, d)).toBeNull();
+  });
+
+  it('ignores other keys', () => {
+    expect(keyEdit(c, line(), 'x', false, d)).toBeNull();
   });
 });

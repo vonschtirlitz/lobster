@@ -17,9 +17,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # No `environment:` here: it would change the OIDC subject claim to
-    # repo:<repo>:environment:<name>, which the deploy role's trust policy
-    # (main branch only) does not accept.
+    # No `environment:`: it changes the OIDC subject, which the deploy role would reject.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,8 +43,7 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: us-east-1
 
-      # Hashed bundles never change, so cache them for a year; upload them
-      # before index.html so a new page never references a missing bundle.
+      # Upload hashed bundles first so a new index.html never points at a missing file.
       - name: Upload hashed assets
         run: |
           aws s3 sync dist/assets/ "s3://${{ vars.S3_BUCKET }}/assets/" \

@@ -1,7 +1,4 @@
-# ── CloudFront ───────────────────────────────────────────────────────────────
-# Cache lifetimes come from the Cache-Control headers set at upload time
-# (.github/workflows/deploy.yml): hashed assets/* are immutable, index.html
-# and favicon.svg revalidate.
+# Cache lifetimes come from the Cache-Control headers set by the deploy workflow.
 
 data "aws_cloudfront_cache_policy" "optimized" {
   name = "Managed-CachingOptimized"

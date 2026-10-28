@@ -7,6 +7,7 @@ import { layout, flankPos } from '../../model/layout';
 import { companyFront, guidePoint, lineAnchor } from '../../model/formation';
 import { add, fwd, right, scale, sub } from '../../model/vec';
 import type { Camera } from './camera';
+import { platoonColour } from '../colour';
 
 export interface Palette {
   field: string;
@@ -41,19 +42,11 @@ export interface Overlay {
 export const ROTATE_HANDLE_PACES = 2;
 const LOD_ZOOM = 4; // px per pace below which men are drawn as plain specks
 
-function mix(hex: string, toward: string, k: number): string {
-  const p = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  const a = p(hex);
-  const b = p(toward);
-  if (a.some(Number.isNaN) || b.some(Number.isNaN)) return hex;
-  const c = a.map((x, i) => Math.round(x + (b[i] - x) * k));
-  return `rgb(${c[0]},${c[1]},${c[2]})`;
-}
+const platoonShade = (c: Company, platoonId: string | undefined, pal: Palette) =>
+  platoonColour(c.colour, Math.max(0, c.platoons.findIndex((p) => p.id === platoonId)), pal.field, pal.ink);
 
-const platoonShade = (c: Company, platoonId: string | undefined) => {
-  const i = Math.max(0, c.platoons.findIndex((p) => p.id === platoonId));
-  return mix(c.colour, '#ffffff', (i % 4) * 0.22);
-};
+/** The company colour adjusted to stay visible on the field in the current theme. */
+const companyInk = (c: Company, pal: Palette) => platoonColour(c.colour, 0, pal.field, pal.ink);
 
 /** Corners of a block's footprint (front-right, front-left, rear-left, rear-right), padded half a file. */
 export function blockCorners(b: Block, d: DrillSystem, order: FormationState['order']): Vec2[] {
@@ -68,7 +61,6 @@ export function blockCorners(b: Block, d: DrillSystem, order: FormationState['or
   return [fr, fl, add(fl, scale(f, -depth - 2 * pad)), add(fr, scale(f, -depth - 2 * pad))];
 }
 
-/** Where the rotate handle sits for a formation. */
 export const rotateHandlePos = (s: FormationState, d: DrillSystem): Vec2 =>
   add(lineAnchor(s, d), scale(fwd(companyFront(s)), ROTATE_HANDLE_PACES));
 
@@ -107,14 +99,12 @@ export function drawScene(
     const shownGhost = editingGhost ? previewFor.get(c.id) ?? ghost : ghost;
     const shownCurrent = !editingGhost ? previewFor.get(c.id) ?? current : current;
 
-    // gap line or ground arrow
     if (orders.length === 0) {
       dashedLine(ctx, S(guidePoint(c, shownCurrent, d)), S(guidePoint(c, shownGhost, d)), pal.muted, [4, 6], 1.25);
     } else {
-      drawArrow(ctx, cam, c, tl);
+      drawArrow(ctx, cam, c, tl, pal);
     }
 
-    // ghost
     if (ui.showGhost) {
       ctx.save();
       ctx.globalAlpha = 0.35;
@@ -122,21 +112,19 @@ export function drawScene(
       ctx.restore();
       ctx.save();
       ctx.setLineDash([5, 4]);
-      ctx.strokeStyle = c.colour;
+      ctx.strokeStyle = companyInk(c, pal);
       ctx.globalAlpha = 0.8;
       ctx.lineWidth = 1;
       for (const b of shownGhost.blocks) if (b.files > 0) polygon(ctx, blockCorners(b, d, shownGhost.order).map(S), false);
       ctx.restore();
-      drawGuide(ctx, cam, c, shownGhost, d, 0.5);
+      drawGuide(ctx, cam, c, shownGhost, d, 0.5, pal);
     }
 
-    // the company itself
     const figs = !editingGhost && previewFor.has(c.id) ? layout(c, shownCurrent, d) : sampled?.get(c.id) ?? layout(c, current, d);
     drawFigures(ctx, cam, c, figs, pal);
-    if (!sampled) drawGuide(ctx, cam, c, shownCurrent, d, 1);
+    if (!sampled) drawGuide(ctx, cam, c, shownCurrent, d, 1, pal);
     if (orders.length) drawOrderMarks(ctx, cam, c, tl, pal, d);
 
-    // selection
     if (ui.selected.includes(c.id)) {
       const s = editingGhost ? shownGhost : shownCurrent;
       ctx.save();
@@ -181,6 +169,17 @@ export function drawScene(
       ctx.fillStyle = pal.error;
       ctx.fillText(note, B.x + 10, B.y + 10);
     }
+    ctx.restore();
+  }
+
+  if (scene.companies.length === 0) {
+    ctx.save();
+    ctx.fillStyle = pal.ink;
+    ctx.textAlign = 'center';
+    ctx.font = '600 18px "EB Garamond", Georgia, serif';
+    ctx.fillText('The field is empty', W / 2, H / 2 - 10);
+    ctx.font = '14px system-ui, sans-serif';
+    ctx.fillText('Use "+ Add company" in the Companies panel to put a company on the field.', W / 2, H / 2 + 14);
     ctx.restore();
   }
 
@@ -234,7 +233,7 @@ function drawFigures(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, fig
   if (z < LOD_ZOOM) {
     for (const f of figs) {
       const p = cam.worldToScreen(f.pos);
-      ctx.fillStyle = f.role === 'private' || f.role === 'corporal' ? platoonShade(c, f.platoonId) : pal.ink;
+      ctx.fillStyle = f.role === 'private' || f.role === 'corporal' ? platoonShade(c, f.platoonId, pal) : pal.ink;
       ctx.fillRect(p.x - 1, p.y - 1, 2, 2);
     }
     return;
@@ -243,7 +242,7 @@ function drawFigures(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, fig
   const tick = Math.max(3, 0.4 * z);
   for (const f of figs) {
     const p = cam.worldToScreen(f.pos);
-    const shade = platoonShade(c, f.platoonId);
+    const shade = platoonShade(c, f.platoonId, pal);
     ctx.lineWidth = Math.max(1, z * 0.06);
     switch (f.role) {
       case 'private':
@@ -268,7 +267,7 @@ function drawFigures(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, fig
         ctx.fillRect(p.x - r, p.y - r, 2 * r, 2 * r);
         break;
       default:
-        circle(ctx, p, Math.max(2.5, 0.45 * z), c.colour, false, Math.max(1.5, z * 0.12));
+        circle(ctx, p, Math.max(2.5, 0.45 * z), companyInk(c, pal), false, Math.max(1.5, z * 0.12));
     }
     const dir = { x: Math.cos(f.facing), y: -Math.sin(f.facing) };
     const from = r * 0.6;
@@ -281,7 +280,15 @@ function drawFigures(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, fig
   }
 }
 
-function drawGuide(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, s: FormationState, d: DrillSystem, alpha: number) {
+function drawGuide(
+  ctx: CanvasRenderingContext2D,
+  cam: Camera,
+  c: Company,
+  s: FormationState,
+  d: DrillSystem,
+  alpha: number,
+  pal: Palette,
+) {
   if (!s.blocks.some((b) => b.files > 0)) return;
   const g = guidePoint(c, s, d);
   const front = companyFront(s);
@@ -292,19 +299,20 @@ function drawGuide(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, s: Fo
   const pts = [tip, add(base, wing), add(base, scale(wing, -1))].map((p) => cam.worldToScreen(p));
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = c.colour;
+  ctx.fillStyle = companyInk(c, pal);
   polygon(ctx, pts, true);
   ctx.restore();
 }
 
-function drawArrow(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, tl: ReturnType<Replay['timeline']>) {
+function drawArrow(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, tl: ReturnType<Replay['timeline']>, pal: Palette) {
+  const colour = companyInk(c, pal);
   const path = tl.path(c.id).map((p) => cam.worldToScreen(p));
   if (path.length < 2) return;
   const width = Math.max(5, cam.zoom * 0.9);
   ctx.save();
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
-  ctx.strokeStyle = c.colour;
+  ctx.strokeStyle = colour;
   ctx.globalAlpha = 0.28;
   ctx.lineWidth = width;
   ctx.beginPath();
@@ -321,7 +329,7 @@ function drawArrow(ctx: CanvasRenderingContext2D, cam: Camera, c: Company, tl: R
     const u = { x: dir.x / n, y: dir.y / n };
     const head = width * 1.8;
     ctx.globalAlpha = 0.5;
-    ctx.fillStyle = c.colour;
+    ctx.fillStyle = colour;
     polygon(
       ctx,
       [
@@ -363,7 +371,7 @@ function drawOrderMarks(
       return;
     }
     circle(ctx, p, 8, pal.field, true);
-    circle(ctx, p, 8, c.colour, false, 1.5);
+    circle(ctx, p, 8, companyInk(c, pal), false, 1.5);
     ctx.fillStyle = pal.ink;
     ctx.fillText(String(i + 1), p.x, p.y + 0.5);
   });

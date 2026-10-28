@@ -36,4 +36,5 @@ export interface DrillSystem {
   commands: CommandDef[];
   postOfficersAndNcos(company: Company, s: FormationState): Figure[];
   terms: Record<string, string>;
+  draftNote?: string; // shown in the UI while the module's values are unverified
 }

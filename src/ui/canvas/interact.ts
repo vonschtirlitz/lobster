@@ -3,7 +3,16 @@ import type { DrillSystem } from '../../drill/types';
 import type { Scene, Store, UiState } from '../../state/store';
 import { getDrill } from '../../drill/registry';
 import { flankPos } from '../../model/layout';
-import { companyFront, frontageFromDrag, guidePoint, lineAnchor, rotateState, translateState } from '../../model/formation';
+import {
+  companyFront,
+  companyRanks,
+  frontageFromDrag,
+  guidePoint,
+  lineAnchor,
+  resizeAboutDress,
+  rotateState,
+  translateState,
+} from '../../model/formation';
 import { dist, lerp, right, scale, sub } from '../../model/vec';
 import type { Camera } from './camera';
 import { blockCorners, rotateHandlePos, type Overlay } from './render';
@@ -63,6 +72,29 @@ export function edgeResize(c: Company, base: FormationState, side: 'left' | 'rig
   return { ...r, state: { ...translateState(r.state, sub(held, now)), menFacing: base.menFacing } };
 }
 
+const ARROWS: Record<string, Vec2> = {
+  ArrowUp: { x: 0, y: 1 },
+  ArrowDown: { x: 0, y: -1 },
+  ArrowLeft: { x: -1, y: 0 },
+  ArrowRight: { x: 1, y: 0 },
+};
+
+/** Keyboard equivalents of the field drags: arrows move, [ ] rotate, + - change depth. Null when the key does nothing. */
+export function keyEdit(c: Company, s: FormationState, key: string, shift: boolean, d: DrillSystem): FormationState | null {
+  if (ARROWS[key]) return translateState(s, scale(ARROWS[key], shift ? 10 : 1));
+  if (key === '[' || key === ']') {
+    const step = ((shift ? 45 : 5) * Math.PI) / 180;
+    return rotateState(s, lineAnchor(s, d), key === '[' ? step : -step);
+  }
+  if (key === '+' || key === '=' || key === '-' || key === '_') {
+    const allowed = [...d.defaults.allowedRanks].sort((a, b) => a - b);
+    const i = allowed.indexOf(companyRanks(s));
+    const next = allowed[key === '+' || key === '=' ? i - 1 : i + 1];
+    return i < 0 || next === undefined ? null : resizeAboutDress(c, s, null, next, d);
+  }
+  return null;
+}
+
 type Drag =
   | { kind: 'pan'; last: Vec2 }
   | { kind: 'move'; start: Vec2; bases: Map<string, FormationState> }
@@ -93,6 +125,26 @@ export function attachInteractions(canvas: HTMLCanvasElement, cam: Camera, store
   };
 
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  canvas.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const scene = store.get();
+    const ui = store.ui();
+    if (e.key === 'Escape') {
+      store.setUi({ selected: [] });
+      return;
+    }
+    const d = getDrill(scene.drillId);
+    const changes = ui.selected.flatMap((id) => {
+      const c = scene.companies.find((x) => x.id === id);
+      const s = scene[ui.editTarget][id];
+      const next = c && s ? keyEdit(c, s, e.key, e.shiftKey, d) : null;
+      return next ? [{ id, which: ui.editTarget, state: next }] : [];
+    });
+    if (!changes.length) return;
+    e.preventDefault();
+    store.dispatch({ type: 'setFormations', changes });
+  });
 
   canvas.addEventListener('pointerdown', (e) => {
     const scene = store.get();

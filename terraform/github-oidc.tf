@@ -1,8 +1,4 @@
-# ── GitHub Actions deploy role (OIDC) ────────────────────────────────────────
-# No long-lived AWS keys are stored in GitHub. The deploy workflow assumes this
-# role with a short-lived OIDC token. The account's GitHub OIDC provider is
-# created and owned by the material-culture github-oidc stack; it is only
-# looked up here.
+# Short-lived OIDC credentials for the deploy workflow; the provider belongs to the material-culture stack.
 
 data "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
@@ -33,8 +29,7 @@ data "aws_iam_policy_document" "deploy_trust" {
   }
 }
 
-# The gh-actions-* prefix matches the IAM scope of the material-culture
-# terraform-apply role.
+# gh-actions-* is the prefix the material-culture terraform-apply role may manage.
 resource "aws_iam_role" "deploy" {
   name               = "gh-actions-${var.project_name}-deploy"
   assume_role_policy = data.aws_iam_policy_document.deploy_trust.json

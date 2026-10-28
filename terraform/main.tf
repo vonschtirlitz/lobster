@@ -1,7 +1,4 @@
-# LOBSTER static site: S3 (private) + CloudFront (OAC) at a subdomain of the
-# existing 18thcenturymaterialculture.org Route53 zone, plus a GitHub OIDC
-# deploy role. Shares the material-culture Terraform state bucket and lock
-# table, under its own state key.
+# LOBSTER static site. State lives in the material-culture state bucket under its own key.
 
 terraform {
   required_version = ">= 1.5"
@@ -52,7 +49,6 @@ locals {
 
 data "aws_caller_identity" "current" {}
 
-# ── S3 bucket ────────────────────────────────────────────────────────────────
 
 resource "aws_s3_bucket" "site" {
   bucket = "${var.project_name}-site-${data.aws_caller_identity.current.account_id}"
@@ -66,7 +62,7 @@ resource "aws_s3_bucket_public_access_block" "site" {
   restrict_public_buckets = true
 }
 
-# OAC — lets CloudFront sign requests to S3 without a public bucket
+# OAC lets CloudFront sign requests to S3, so the bucket stays private
 resource "aws_cloudfront_origin_access_control" "site" {
   name                              = "${var.project_name}-oac"
   origin_access_control_origin_type = "s3"

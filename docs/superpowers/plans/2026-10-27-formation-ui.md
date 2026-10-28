@@ -231,7 +231,7 @@ tests/…                         mirrors src/
 - [ ] **Step 1: Write the failing tests:**
   - Right face → `end.menFacing='right'`. At `t0+beat/2` the private's facing is halfway between π/2 and 0.
   - March 20 ordinary while fronted, front π/2 → all figures move +20 in y. Duration 20 s.
-  - "Right — Face, March 20, Front", chained by hand → the block moves +20 in x and ends `menFacing 'front'`.
+  - "Right, Face, March 20, Front", chained by hand → the block moves +20 in x and ends `menFacing 'front'`.
   - Wait 4 → duration 4 and identical figures at both ends.
 - [ ] **Step 2:** Run `npm test`. Expected: FAIL.
 - [ ] **Step 3:** Implement `segment.ts` and these four kinds in `primitives.ts`, with a `switch` on `order.kind`. Unknown kinds return an error segment ("Unknown command").
@@ -556,13 +556,13 @@ The order and dress switches act on the selected company's `editTarget` state th
 
 - [ ] **Step 1:** Implement both panels.
 - [ ] **Step 2:** Run `npm run typecheck && npm test`. Expected: PASS.
-- [ ] **Step 3:** Check by hand in `npm run dev` with the default company. Add "Right — Wheel 90° by company", "March 20", "Left — Wheel 90° by company". Expected:
+- [ ] **Step 3:** Check by hand in `npm run dev` with the default company. Add "Right, Wheel 90° by company", "March 20", "Left, Wheel 90° by company". Expected:
   - The ground arrow shows two arcs joined by a straight march, with ticks 1–3.
   - Playing shows the pivot man marking time on each wheel.
   - Clicking order 3 jumps to the start of the second wheel.
   - The comparison reads in paces.
   - "Make this the start" moves the solid company to the end position and clears the list.
-  - Changing order 1 to "Right — Face" turns rows 2–3 red or "not reached" with a reason.
+  - Changing order 1 to "Right, Face" turns rows 2–3 red or "not reached" with a reason.
   - Wheel by platoons forms a column visibly. Wheeling back re-forms the line.
 - [ ] **Step 4:** Commit `feat: orders panel, replay bar and ghost comparison readout`.
 

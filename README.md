@@ -66,6 +66,9 @@ Open the URL Vite prints (usually http://localhost:5173).
 | Replay | Play / pause (Space), step between orders, scrub, speed up to 4×. Click an order's words to jump to it |
 | Chain exercises | **Make this the start** turns the end of the replay into the new starting position |
 | Undo / redo | Ctrl+Z / Ctrl+Shift+Z |
+| Edit from the keyboard | Tab to the field, then use the arrow keys to move the selected company, `[` and `]` to rotate it, and `+` and `-` to change its depth. Hold Shift for bigger steps, and press Escape to clear the selection |
+
+LOBSTER is built for desktop browsers with a mouse or trackpad. There is no phone layout, by choice.
 
 ## Status and drill sources
 

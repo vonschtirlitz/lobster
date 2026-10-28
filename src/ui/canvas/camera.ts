@@ -36,7 +36,6 @@ export class Camera {
     };
   }
 
-  /** Drag the ground by a screen delta. */
   pan(dxPx: number, dyPx: number) {
     this.centre = { x: this.centre.x - dxPx / this.zoom, y: this.centre.y + dyPx / this.zoom };
   }

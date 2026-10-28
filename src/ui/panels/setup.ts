@@ -1,6 +1,6 @@
 import type { Store } from '../../state/store';
 import type { Company, FormationState } from '../../model/types';
-import { DRILL_SYSTEMS, getDrill } from '../../drill/registry';
+import { getDrill } from '../../drill/registry';
 import { companyRanks, resizeAboutDress } from '../../model/formation';
 import { platoonTotal, platoonWarnings, splitMen } from '../../model/telloff';
 import { newId } from '../../state/store';
@@ -56,19 +56,10 @@ export function mountSetup(el: HTMLElement, store: Store) {
 
     const header = [
       h('h2', {}, 'Companies'),
-      h(
-        'div',
-        { class: 'row' },
-        h('label', { for: 'drill' }, 'Drill'),
-        h(
-          'select',
-          { id: 'drill', on: { change: () => undefined } },
-          ...DRILL_SYSTEMS.map((x) => h('option', { value: x.id, selected: x.id === scene.drillId }, x.name)),
-        ),
-      ),
+      h('div', { class: 'row' }, h('span', { class: 'label-text' }, 'Drill'), h('span', { title: d.draftNote }, d.draftNote ? `${d.name} (draft values)` : d.name)),
       list,
       h('div', { class: 'row' }, h('button', { type: 'button', on: { click: () => store.dispatch({ type: 'addCompany' }) } }, '+ Add company')),
-    ];
+    ].filter((x): x is NonNullable<typeof x> => x !== null);
 
     if (!c) {
       el.replaceChildren(...header, h('p', { style: 'color:var(--muted)' }, 'Select a company to set it up.'));

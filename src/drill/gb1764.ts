@@ -102,7 +102,7 @@ export const gb1764: DrillSystem = {
         { key: 'paces', label: 'Paces', type: 'number', default: 10, min: 1 },
         { key: 'step', label: 'Step', type: 'choice', choices: ['ordinary', 'quick'], default: 'ordinary' },
       ],
-      say: (p) => `${p.step === 'quick' ? 'Quick ' : ''}March — ${n(p, 'paces')} paces — Halt`,
+      say: (p) => `${p.step === 'quick' ? 'Quick March' : 'March'}, ${n(p, 'paces')} paces. Halt`,
     },
     {
       kind: 'face',
@@ -111,7 +111,7 @@ export const gb1764: DrillSystem = {
         { key: 'direction', label: 'To the', type: 'choice', choices: ['right', 'left', 'about', 'front'], default: 'right' },
       ],
       say: (p) =>
-        p.direction === 'front' ? 'Front' : p.direction === 'about' ? 'To the Right about — Face' : `To the ${cap(p.direction)} — Face`,
+        p.direction === 'front' ? 'Front' : p.direction === 'about' ? 'To the Right about, Face' : `To the ${cap(p.direction)}, Face`,
     },
     {
       kind: 'wheel',
@@ -122,13 +122,13 @@ export const gb1764: DrillSystem = {
         { key: 'by', label: 'By', type: 'choice', choices: ['company', 'platoons'], default: 'company' },
       ],
       say: (p) =>
-        `${p.by === 'platoons' ? 'Platoons, to' : 'To'} the ${cap(p.direction)} — Wheel${n(p, 'degrees') !== 90 ? ` (${n(p, 'degrees')}°)` : ''} — Halt, Dress`,
+        `${p.by === 'platoons' ? 'Platoons, to' : 'To'} the ${cap(p.direction)}, Wheel${n(p, 'degrees') !== 90 ? ` (${n(p, 'degrees')}°)` : ''}. Halt, Dress`,
     },
     {
       kind: 'spacing',
       words: 'Take order',
       params: [{ key: 'order', label: 'Order', type: 'choice', choices: ['close', 'open', 'extended'], default: 'open' }],
-      say: (p) => `Rear ranks — take ${p.order} order — March`,
+      say: (p) => `Rear ranks, take ${p.order} order. March`,
     },
     {
       kind: 'dress',
@@ -140,7 +140,7 @@ export const gb1764: DrillSystem = {
       kind: 'depth',
       words: 'Form deep',
       params: [{ key: 'ranks', label: 'Ranks', type: 'choice', choices: ['2', '3'], default: '3' }],
-      say: (p) => `Form ${p.ranks} deep — March`,
+      say: (p) => `Form ${p.ranks} deep. March`,
     },
     {
       kind: 'wait',
@@ -150,6 +150,7 @@ export const gb1764: DrillSystem = {
     },
   ],
   postOfficersAndNcos,
+  draftNote: 'Draft values: the words of command, distances and cadences are not yet checked against the 1764 Manual.',
   terms: {
     rankAndFile: 'Rank and file',
     platoon: 'Platoon',

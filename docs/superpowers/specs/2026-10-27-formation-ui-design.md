@@ -92,7 +92,7 @@ interface Block {
 
 interface FormationState {                 // one per company for "current", one for "target"
   blocks: Block[];                         // one per platoon
-  menFacing: MenFacing;                    // after "To the Right — Face" etc.
+  menFacing: MenFacing;                    // after "To the Right, Face" etc.
   order: OrderSpacing;
   dressBy: DressPoint;
 }
@@ -144,7 +144,7 @@ interface DrillSystem {
 
 interface CommandDef {
   kind: CommandKind;                       // which executor primitive runs it
-  words: string;                           // "To the Right — Wheel"
+  words: string;                           // "To the Right, Wheel"
   params: ParamDef[];                      // e.g. degrees, paces, by company/by platoons
 }
 ```
@@ -176,7 +176,7 @@ Each command maps to one executor primitive. The words and parameter defaults co
 | Command (placeholder words) | Primitive | Parameters | Behaviour |
 |---|---|---|---|
 | March / Halt | `march` | paces, step (ordinary/quick) | Every man steps off in the direction he faces. Fronted, the block advances. Faced right or left, the block marches by files to that flank. Ends halted. |
-| To the Right / Left — Face; To the Right About — Face; Front | `face` | direction | Men turn in place. Takes `beatSeconds`. Changes `menFacing`, not `front`. |
+| To the Right / Left, Face; To the Right About, Face; Front | `face` | direction | Men turn in place. Takes `beatSeconds`. Changes `menFacing`, not `front`. |
 | Right / Left Wheel … Halt, Dress | `wheel` | degrees (default 90), by company or by platoons | Each wheeling unit rotates rigidly about its pivot flank man, who marks time. The wheeling flank man moves at the step's cadence along the arc, which sets the duration. "By platoons" wheels every platoon at once on its own pivot (line ↔ open column). Only allowed when fronted. |
 | Open / Close Order (ranks) | `spacing` | target order | Rear ranks step back or close up to the new rank distance. Files open or close to the new interval, about the dressing point. |
 | Dress (right / left / centre) | `dress` | point | Changes `dressBy`. Takes `beatSeconds`. No movement in this phase. |
@@ -187,7 +187,7 @@ Adding a command later means adding a `CommandDef` to the drill module and, if n
 
 **Rules the executor enforces:**
 - **Invalid orders:** an order that isn't valid in the current state, such as wheeling while faced to a flank, is flagged in the orders list with the reason, and the replay stops before it.
-- **Facing:** facing and marching use `menFacing` relative to each block's `front`, so "Right — Face, March 20, Front" is a flank march of 20 paces.
+- **Facing:** facing and marching use `menFacing` relative to each block's `front`, so "Right, Face, March 20, Front" is a flank march of 20 paces.
 
 ### Executor
 
@@ -239,9 +239,9 @@ The result shows per company as a short readout ("4.5 paces short · front 0° �
 ├────────────────────────────────────────────────────────────┤   platoons)    │
 │                                                            ├────────────────┤
 │                    field canvas                            │  Orders panel  │
-│                                                            │  1. Right—Wheel│
+│                                                            │  1. Right Wheel│
 │                                                            │  2. March 40   │
-│                                                            │  3. Left—Wheel │
+│                                                            │  3. Left Wheel │
 │                                                            │  [+ command ▾] │
 │                                                            │  vs ghost: ✓   │
 ├────────────────────────────────────────────────────────────┤                │
@@ -300,7 +300,7 @@ Clicking a company selects it. The **Edit: current | ghost** toggle chooses whic
 
 ### Orders panel
 
-- **The list:** the orders for the selected company, as a numbered list of words of command with their parameters ("Right — Wheel, 90°, by platoons").
+- **The list:** the orders for the selected company, as a numbered list of words of command with their parameters ("Right, Wheel, 90°, by platoons").
   - Each row can be edited inline (parameters), reordered by dragging, deleted, and have an order inserted after it.
   - Invalid orders show in red with the reason.
 - **Adding orders:** a **+ command** menu lists the drill module's `commands`. Choosing one appends it with default parameters.
@@ -327,7 +327,7 @@ Vitest unit tests for:
 - **The executor**, which is where most of the risk is:
   - A 90° right wheel keeps the pivot man fixed, and its duration matches the outer flank's arc at the cadence.
   - A wheel by platoons from line gives an open column, and wheeling back restores the line.
-  - "Right — Face, March N, Front" moves the block N paces to its right.
+  - "Right, Face, March N, Front" moves the block N paces to its right.
   - Opening order holds the dressing point.
   - Invalid orders are flagged and stop the timeline.
   - `sample(t)` is continuous at segment boundaries.

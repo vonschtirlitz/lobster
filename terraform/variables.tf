@@ -34,8 +34,7 @@ variable "price_class" {
   default     = "PriceClass_100" # US, Canada, Europe
 }
 
-# This repo uses GitHub's immutable OIDC subject (owner and repo IDs), from
-# gh api repos/vonschtirlitz/lobster/actions/oidc/customization/sub
+# Immutable OIDC subject (owner and repo IDs): gh api repos/vonschtirlitz/lobster/actions/oidc/customization/sub
 variable "github_oidc_subject_prefix" {
   description = "OIDC sub claim prefix for this repo, used to scope the deploy role's trust policy"
   type        = string
