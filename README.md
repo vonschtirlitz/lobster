@@ -88,7 +88,29 @@ The design and implementation notes are in [`docs/superpowers/`](docs/superpower
 
 ## Deploying
 
-`npm run build` produces a fully static site in `dist/`. It needs no server-side code, and asset paths are relative, so it works from any folder, bucket prefix or subpath. Any static host will do: GitHub Pages, Cloudflare Pages, Netlify, or AWS S3 + CloudFront / Amplify Hosting.
+The live site is **https://lobster.18thcenturymaterialculture.org**. Every push to `main` deploys it automatically ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)): tests, build, upload to S3, then a CloudFront cache refresh. Pull requests run tests and the build only ([`ci.yml`](.github/workflows/ci.yml)).
+
+**Hosting:** a private S3 bucket behind CloudFront, with an ACM certificate and Route53 records under the existing `18thcenturymaterialculture.org` zone. It's all defined in [`terraform/`](terraform/), which shares the material-culture Terraform state bucket under its own key.
+
+**No secrets in GitHub.** The workflow signs in to AWS with GitHub OIDC, assuming a role that can only:
+- be used from `main` of this repo;
+- write to this site's bucket;
+- refresh this site's CloudFront distribution.
+
+The repo holds four non-secret Actions **variables**: `AWS_DEPLOY_ROLE_ARN`, `S3_BUCKET`, `CF_DISTRIBUTION_ID` and `SITE_URL`. Terraform state and `*.tfvars` are gitignored.
+
+To set up or change the infrastructure (needs AWS credentials locally):
+
+```bash
+make infra-init
+make infra-plan
+make infra-apply
+make github-vars   # copies the Terraform outputs into the repo's Actions variables
+```
+
+`make deploy` builds and uploads from your machine if you ever need to bypass CI.
+
+Because the build is a static site with relative asset paths, it also runs on any other static host (GitHub Pages, Cloudflare Pages, Netlify).
 
 ## Project layout
 
@@ -98,7 +120,9 @@ src/drill/    drill systems (gb1764.ts) and their types
 src/engine/   order primitives, timeline execution, ghost comparison
 src/state/    scene store, undo/redo, persistence, replay clock
 src/ui/       canvas renderer, interactions, panels
-public/       static assets (the lobster)
+public/       static assets (the lobster in its cocked hat)
+terraform/    AWS hosting (S3, CloudFront, ACM, Route53, OIDC deploy role)
+.github/      CI and deploy workflows
 tests/        Vitest unit tests
 docs/         screenshot, design and implementation plan
 ```

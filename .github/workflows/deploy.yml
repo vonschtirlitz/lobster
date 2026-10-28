@@ -1,0 +1,71 @@
+name: Deploy
+
+# Every push to main goes live at https://lobster.18thcenturymaterialculture.org
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write # required to mint the OIDC token for AWS
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.SITE_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build (includes typecheck)
+        run: npm run build
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      # Hashed bundles never change, so cache them for a year; upload them
+      # before index.html so a new page never references a missing bundle.
+      - name: Upload hashed assets
+        run: |
+          aws s3 sync dist/assets/ "s3://${{ vars.S3_BUCKET }}/assets/" \
+            --cache-control "public, max-age=31536000, immutable"
+
+      - name: Upload pages and icon
+        run: |
+          aws s3 sync dist/ "s3://${{ vars.S3_BUCKET }}/" \
+            --exclude "assets/*" \
+            --cache-control "no-cache"
+
+      - name: Remove files no longer in the build
+        run: aws s3 sync dist/ "s3://${{ vars.S3_BUCKET }}/" --delete --size-only
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CF_DISTRIBUTION_ID }}" \
+            --paths "/index.html" "/" "/favicon.svg"
+
+      - name: Summary
+        run: echo "Deployed to ${{ vars.SITE_URL }}" >> "$GITHUB_STEP_SUMMARY"

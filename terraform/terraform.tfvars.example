@@ -1,0 +1,7 @@
+# Optional: copy to terraform.tfvars to override defaults.
+# terraform.tfvars is gitignored. Nothing here is secret; all values have defaults.
+
+# subdomain     = "lobster"
+# parent_domain = "18thcenturymaterialculture.org"
+# github_repo   = "vonschtirlitz/lobster"
+# price_class   = "PriceClass_100"

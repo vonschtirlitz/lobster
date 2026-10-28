@@ -1,21 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- antennae, arms and legs -->
   <g fill="none" stroke="#7b1f16" stroke-linecap="round">
-    <path d="M29 16 C25 8 19 5 9 3" stroke-width="1.5"/>
-    <path d="M35 16 C39 8 45 5 55 3" stroke-width="1.5"/>
-    <path d="M26 23 L19 18 M38 23 L45 18" stroke-width="3.5" stroke="#c0392b"/>
-    <path d="M25 26 L18 29 M25 30 L18 34 M26 34 L20 38 M39 26 L46 29 M39 30 L46 34 M38 34 L44 38" stroke-width="1.8"/>
+    <path d="M27 17 C23 9 17 6 7 5" stroke-width="1.5"/>
+    <path d="M37 17 C41 9 47 6 57 5" stroke-width="1.5"/>
+    <path d="M26 25 L19 20 M38 25 L45 20" stroke-width="3.5" stroke="#c0392b"/>
+    <path d="M25 28 L18 31 M25 32 L18 36 M26 36 L20 40 M39 28 L46 31 M39 32 L46 36 M38 36 L44 40" stroke-width="1.8"/>
   </g>
+  <!-- claws, body, tail -->
   <g fill="#c0392b" stroke="#7b1f16" stroke-width="1.5" stroke-linejoin="round">
-    <ellipse cx="13" cy="15" rx="6" ry="9" transform="rotate(-25 13 15)"/>
-    <ellipse cx="19.5" cy="8.5" rx="2.4" ry="6" transform="rotate(22 19.5 8.5)"/>
-    <ellipse cx="51" cy="15" rx="6" ry="9" transform="rotate(25 51 15)"/>
-    <ellipse cx="44.5" cy="8.5" rx="2.4" ry="6" transform="rotate(-22 44.5 8.5)"/>
-    <ellipse cx="32" cy="27" rx="8" ry="11"/>
-    <rect x="25" y="36" width="14" height="6" rx="3"/>
-    <rect x="26" y="41" width="12" height="6" rx="3"/>
-    <rect x="27" y="46" width="10" height="5" rx="2.5"/>
-    <path d="M32 50 L22 60 Q32 63.5 42 60 Z"/>
+    <ellipse cx="13" cy="17" rx="6" ry="9" transform="rotate(-25 13 17)"/>
+    <ellipse cx="19.5" cy="10.5" rx="2.4" ry="6" transform="rotate(22 19.5 10.5)"/>
+    <ellipse cx="51" cy="17" rx="6" ry="9" transform="rotate(25 51 17)"/>
+    <ellipse cx="44.5" cy="10.5" rx="2.4" ry="6" transform="rotate(-22 44.5 10.5)"/>
+    <ellipse cx="32" cy="29" rx="8" ry="11"/>
+    <rect x="25" y="38" width="14" height="6" rx="3"/>
+    <rect x="26" y="43" width="12" height="5.5" rx="2.75"/>
+    <rect x="27" y="47.5" width="10" height="5" rx="2.5"/>
+    <path d="M32 51.5 L22 61 Q32 64 42 61 Z"/>
   </g>
-  <circle cx="29" cy="18" r="1.4" fill="#2b2a26"/>
-  <circle cx="35" cy="18" r="1.4" fill="#2b2a26"/>
+  <circle cx="29" cy="24" r="1.4" fill="#2b2a26"/>
+  <circle cx="35" cy="24" r="1.4" fill="#2b2a26"/>
+  <!-- cocked hat: crown, cocked-up brim with gold lace, cockade -->
+  <ellipse cx="32" cy="15.5" rx="6.5" ry="4.5" fill="#1f1d1a"/>
+  <path d="M19.5 20.5 Q22 9.5 32 12 Q42 9.5 44.5 20.5 Q38.5 16.5 32 18 Q25.5 16.5 19.5 20.5 Z"
+        fill="#1f1d1a" stroke="#d4a72c" stroke-width="1.3" stroke-linejoin="round"/>
+  <circle cx="38.5" cy="14.5" r="1.9" fill="#f4f1e8" stroke="#1f1d1a" stroke-width="0.8"/>
 </svg>

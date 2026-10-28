@@ -1,3 +1,25 @@
-node_modules
-dist
-.superpowers
+# Node
+node_modules/
+dist/
+
+# Local tooling
+.superpowers/
+
+# Terraform: state, plans and local variable files never go to GitHub
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/tfplan
+terraform/*.tfvars
+!terraform/terraform.tfvars.example
+
+# Environment and credentials
+.env
+.env.*
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
