@@ -26,15 +26,15 @@ export function mountMobileNotice(host: HTMLElement) {
   })();
   if (!shouldShowMobileNotice((q) => window.matchMedia(q), storage)) return;
 
-  const dismiss = h('button', { type: 'button', class: 'mobile-notice-dismiss' }, 'Continue anyway');
+  const dismiss = h('button', { type: 'button', class: 'mobile-notice-dismiss' }, "I'm a grenadier, and I know better");
   const dialog = h(
     'dialog',
     { class: 'mobile-notice', 'aria-labelledby': 'mobile-notice-title' },
-    h('h2', { id: 'mobile-notice-title' }, 'LOBSTER needs a desktop browser'),
+    h('h2', { id: 'mobile-notice-title' }, "Whoa, you're a mobile user??"),
     h(
       'p',
       {},
-      'Companies are moved, turned and given a frontage by dragging and right-clicking with a mouse or trackpad, and the field needs room beside both panels. On a phone or tablet most of that will not work.',
+      "I'm gonna be real, but I made this with a wide screen and a mouse in mind. It might work on your device, but it probably won't, because you need to drag things and see several tabs of interfaces at once. I'll probably add tiny-screen support in the future.",
     ),
     h('p', {}, 'Open this page on a computer:'),
     h('p', { class: 'mobile-notice-url' }, location.host + location.pathname),
